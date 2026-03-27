@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixture Fútbol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0e14;--bg2:#0f1520;--bg3:#151d2b;
+    --surface:#1a2336;--surface2:#1f2b40;--border:#243049;
+    --accent:#00d4ff;--accent2:#00ff88;
+    --live:#ff3b5c;--final:#5a6a80;
+    --text:#e8edf5;--text2:#8fa0bb;--text3:#5a6a80;--gold:#ffd700;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,212,255,.06),transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(0,255,136,.03),transparent);
+    pointer-events:none;z-index:0}
+
+  header{position:sticky;top:0;z-index:100;background:rgba(10,14,20,.94);
+    backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
+    padding:0 24px;display:flex;align-items:center;gap:16px;height:58px}
+  .logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:21px;
+    letter-spacing:2px;text-transform:uppercase;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .date-nav{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .date-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);
+    width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;
+    display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .date-btn:hover{background:var(--surface2);color:var(--accent);border-color:var(--accent)}
+  #date-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+    letter-spacing:1px;color:var(--text);min-width:130px;text-align:center;text-transform:uppercase}
+
+  .filters{padding:12px 20px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;
+    border-bottom:1px solid var(--border);position:relative;z-index:1;background:rgba(10,14,20,.6)}
+  .f-btn{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);
+    color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
+    letter-spacing:.4px;cursor:pointer;transition:all .18s;white-space:nowrap}
+  .f-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .f-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+  .f-btn.live-f.active{background:var(--live);border-color:var(--live);color:#fff}
+  .f-btn.fav-f{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.07);color:var(--gold);margin-left:auto}
+  .f-btn.fav-f:hover{background:rgba(255,215,0,.15)}
+
+  main{max-width:920px;margin:0 auto;padding:18px 14px 80px;position:relative;z-index:1}
+  .info-bar{font-size:12px;color:var(--text3);font-family:'Barlow Condensed',sans-serif;padding:0 4px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .info-bar a{color:var(--accent);text-decoration:none}
+  .info-bar-links{display:flex;gap:8px}
+  .api-status{display:flex;gap:8px;font-size:11px}
+  .api-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px}
+  .api-dot.ok{background:var(--accent2)}
+  .api-dot.err{background:var(--live)}
+  .api-dot.loading{background:var(--gold);animation:blink 1s infinite}
+
+  .comp-group{margin-bottom:10px;border-radius:14px;overflow:hidden;
+    border:1px solid var(--border);background:var(--bg2);animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .comp-header{display:flex;align-items:center;gap:10px;padding:9px 16px;background:var(--bg3);
+    cursor:pointer;user-select:none;transition:background .18s}
+  .comp-header:hover{background:var(--surface)}
+  .comp-flag{font-size:17px}
+  .comp-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;
+    letter-spacing:1.2px;text-transform:uppercase;color:var(--text2);flex:1}
+  .comp-count{font-size:11px;color:var(--text3);font-family:'Barlow Condensed',sans-serif}
+  .chevron{color:var(--text3);transition:transform .22s;font-size:11px}
+  .comp-group.collapsed .chevron{transform:rotate(-90deg)}
+  .comp-group.collapsed .matches-wrap{display:none}
+
+  .match-row{display:grid;grid-template-columns:68px 1fr auto 1fr 96px;
+    align-items:center;padding:9px 16px;border-top:1px solid var(--border);
+    transition:background .14s;gap:6px;min-height:52px;position:relative}
+  .match-row:hover{background:rgba(255,255,255,.025)}
+  .fav-bar{position:absolute;left:0;top:12%;bottom:12%;width:3px;background:var(--gold);border-radius:2px}
+
+  .m-time{text-align:center}
+  .time-txt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--text);display:block}
+  .badge{display:inline-block;padding:2px 7px;border-radius:4px;
+    font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px}
+  .badge-live{background:var(--live);color:#fff;animation:blink 1.6s infinite}
+  .badge-final{background:rgba(90,106,128,.3);color:var(--text3)}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
+
+  .team{display:flex;align-items:center;gap:7px}
+  .team.home{justify-content:flex-end}
+  .team-name{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+    color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:155px}
+  .team-name.w{color:#fff;font-weight:700}
+  .crest{width:26px;height:26px;object-fit:contain;flex-shrink:0;border-radius:2px}
+  .crest-ph{width:26px;height:26px;background:var(--surface);border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3)}
+
+  .m-score{text-align:center;min-width:58px}
+  .score-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:#fff;letter-spacing:2px}
+  .score-vs{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--text3);letter-spacing:2px}
+
+  .m-channel{display:flex;justify-content:center;align-items:center}
+  .ch-btn{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:8px;
+    border:1px solid transparent;background:var(--surface);cursor:pointer;
+    transition:all .18s;text-decoration:none;max-width:100%}
+  .ch-btn:hover{border-color:var(--accent);background:rgba(0,212,255,.09);
+    transform:scale(1.05);box-shadow:0 0 10px rgba(0,212,255,.2)}
+  .ch-logo{width:24px;height:24px;object-fit:contain;border-radius:3px;flex-shrink:0}
+  .ch-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+    color:var(--text2);white-space:nowrap;letter-spacing:.3px}
+  .ch-none{color:var(--text3);font-size:12px;font-family:'Barlow Condensed',sans-serif}
+
+  .loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:70px 20px;
+    color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px}
+  .big-spin{width:46px;height:46px;border:3px solid var(--border);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty{text-align:center;padding:70px 20px;color:var(--text3);
+    font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:1px}
+
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;backdrop-filter:blur(5px)}
+  .overlay.open{display:flex;align-items:center;justify-content:center}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;
+    width:480px;max-width:95vw;max-height:82vh;overflow-y:auto}
+  .modal h2{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;
+    color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  .modal p{font-size:13px;color:var(--text2);margin-bottom:18px}
+  .fav-row{display:flex;gap:8px;margin-bottom:14px}
+  .fav-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:10px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;
+    outline:none;transition:border-color .2s}
+  .fav-inp:focus{border-color:var(--gold)}
+  .fav-add{padding:10px 18px;background:var(--gold);color:#000;border:none;border-radius:10px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+  .fav-tags{display:flex;flex-wrap:wrap;gap:8px;min-height:24px}
+  .fav-tag{display:flex;align-items:center;gap:5px;background:rgba(255,215,0,.1);
+    border:1px solid rgba(255,215,0,.25);border-radius:20px;padding:4px 12px;
+    font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--gold)}
+  .fav-x{background:none;border:none;color:var(--gold);cursor:pointer;font-size:16px;opacity:.6}
+  .fav-x:hover{opacity:1}
+  .modal-ok{display:block;width:100%;margin-top:20px;padding:12px;
+    background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+    cursor:pointer;transition:all .2s}
+  .modal-ok:hover{background:var(--surface);color:var(--text)}
+
+  @media(max-width:580px){
+    .match-row{grid-template-columns:52px 1fr auto 1fr 70px;padding:8px 10px;gap:4px}
+    .team-name{font-size:13px;max-width:95px}
+    .score-num{font-size:18px}
+    .ch-name{display:none}
+    .ch-btn{padding:4px 6px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚽ Fixture</div>
+  <div class="date-nav">
+    <button class="date-btn" id="prev-day">‹</button>
+    <span id="date-label">Hoy</span>
+    <button class="date-btn" id="next-day">›</button>
+  </div>
+</header>
+
+<div class="filters">
+  <button class="f-btn active" data-f="all">Todos</button>
+  <button class="f-btn live-f" data-f="live">🔴 En vivo</button>
+  <button class="f-btn" data-f="arg">🇦🇷 Liga Argentina</button>
+  <button class="f-btn" data-f="copa">🏆 Copa Argentina</button>
+  <button class="f-btn" data-f="champions">Champions</button>
+  <button class="f-btn" data-f="europa">Europa League</button>
+  <button class="f-btn" data-f="elim">Eliminatorias</button>
+  <button class="f-btn" data-f="mundial">Mundial</button>
+  <button class="f-btn" data-f="amistosos">Amistosos</button>
+  <button class="f-btn fav-f" id="fav-btn">★ Favoritos</button>
+</div>
+
+<main>
+  <div class="info-bar">
+    <div class="info-bar-links">
+      Fuentes: <a href="https://www.football-data.org" target="_blank">football-data.org</a> &amp; <a href="https://www.thesportsdb.com" target="_blank">TheSportsDB</a>
+    </div>
+    <div class="api-status" id="api-status"></div>
+  </div>
+  <div id="container">
+    <div class="loading"><div class="big-spin"></div>Cargando partidos...</div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>★ Favoritos</h2>
+    <p>Tus equipos aparecen primero, marcados con una línea dorada.</p>
+    <div class="fav-row">
+      <input class="fav-inp" id="fav-inp" type="text" placeholder="Ej: River, Argentina, Real Madrid...">
+      <button class="fav-add" id="fav-add">+ Agregar</button>
+    </div>
+    <div class="fav-tags" id="fav-tags"></div>
+    <button class="modal-ok" id="modal-ok">Listo ✓</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════ CONFIG ═══════════════════
+const FD_TOKEN = '202e9a31e70e43a5ac151fbaf59f0179';
+
+// ─── TheSportsDB ───
+// IDs verificados que funcionan con la key gratuita "3"
+// eventsday.php necesita el nombre de la liga, no el ID numérico de la competición.
+// Usamos eventsnextleague.php y eventspastleague.php para ligas argentinas.
+// Para partidos del día usamos eventsday.php con el sport=Soccer y filtramos.
+const TSDB_LEAGUES = {
+  arg:  { id:'4406', name:'Liga Profesional Argentina', flag:'🇦🇷', filter:'arg'  },
+  copa: { id:'4442', name:'Copa Argentina',             flag:'🏆',  filter:'copa' },
+};
+
+// ─── football-data.org ───
+const FD_COMPS = {
+  champions: { id:'CL',  name:'Champions League',       flag:'⭐', filter:'champions' },
+  europa:    { id:'EL',  name:'Europa League',          flag:'🟠', filter:'europa'    },
+  elim:      { id:'CLI', name:'Eliminatorias CONMEBOL', flag:'🌎', filter:'elim'      },
+  mundial:   { id:'WC',  name:'Mundial FIFA',           flag:'🌍', filter:'mundial'   },
+};
+
+// ─── Canales y links ───
+const CHANNELS = {
+  'ESPN':         { url:'https://angulismotv-dnh.pages.dev/transmision?c=ESPN+1&o=7',       logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/ESPN_wordmark.svg/120px-ESPN_wordmark.svg.png' },
+  'ESPN 2':       { url:'https://angulismotv-dnh.pages.dev/transmision?c=ESPN+2&o=0',       logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/ESPN2_logo.svg/120px-ESPN2_logo.svg.png' },
+  'ESPN 3':       { url:'https://angulismotv-dnh.pages.dev/transmision?c=ESPN+3&o=1',       logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/ESPN3_2015.svg/120px-ESPN3_2015.svg.png' },
+  'ESPN Premium': { url:'https://angulismotv-dnh.pages.dev/transmision?c=ESPN+Premium&o=9', logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/ESPN_wordmark.svg/120px-ESPN_wordmark.svg.png' },
+  'Fox Sports':   { url:'https://angulismotv-dnh.pages.dev/transmision?c=FOX+Sports&o=4',   logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fox_Sports_2012.svg/120px-Fox_Sports_2012.svg.png' },
+  'Fox Sports 2': { url:'https://angulismotv-dnh.pages.dev/transmision?c=FOX+Sports+2&o=0', logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fox_Sports_2012.svg/120px-Fox_Sports_2012.svg.png' },
+  'Fox Sports 3': { url:'https://angulismotv-dnh.pages.dev/transmision?c=FOX+Sports+3&o=0', logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fox_Sports_2012.svg/120px-Fox_Sports_2012.svg.png' },
+  'TNT Sports':   { url:'https://angulismotv-dnh.pages.dev/transmision?c=TNT+Sports&o=8',   logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/TNT_Sports_logo_2023.svg/120px-TNT_Sports_logo_2023.svg.png' },
+  'TyC Sports':   { url:'https://angulismotv-dnh.pages.dev/transmision?c=TyC+Sports&o=5',   logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/TyC_Sports_logo_2017.svg/120px-TyC_Sports_logo_2017.svg.png' },
+  'DSports':      { url:'https://angulismotv-dnh.pages.dev/transmision?c=DSports&o=0',       logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/DirecTV_Sports_logo.svg/120px-DirecTV_Sports_logo.svg.png' },
+  'DSports 2':    { url:'https://angulismotv-dnh.pages.dev/transmision?c=DSports+2&o=0',     logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/DirecTV_Sports_logo.svg/120px-DirecTV_Sports_logo.svg.png' },
+  'DSports+':     { url:'https://angulismotv-dnh.pages.dev/transmision?c=DSports+Plus&o=0',  logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/DirecTV_Sports_logo.svg/120px-DirecTV_Sports_logo.svg.png' },
+};
+
+// Canal por defecto según competición
+const DEFAULT_CH = {
+  arg:'ESPN Premium', copa:'TyC Sports',
+  champions:'ESPN', europa:'ESPN 2',
+  elim:'TyC Sports', mundial:'TyC Sports', amistosos:'TyC Sports',
+};
+
+// ═══════════════════ STATE ═══════════════════
+let currentDate = new Date();
+let activeFilter = 'all';
+let favorites = [];
+try { favorites = JSON.parse(localStorage.getItem('favs') || '[]'); } catch(e) { favorites = []; }
+let apiStatus = { tsdb: 'loading', fd: 'loading' };
+
+// ═══════════════════ DATE ════════════════════
+const pad = n => String(n).padStart(2, '0');
+
+// Devuelve la fecha en formato YYYY-MM-DD en hora LOCAL (Argentina)
+function fmtISO(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function fmtLabel(d) {
+  const today = new Date();
+  const todayStr = fmtISO(today);
+  const dStr = fmtISO(d);
+  const diff = Math.round((new Date(dStr) - new Date(todayStr)) / 86400000);
+  if (diff === 0) return 'Hoy';
+  if (diff === 1) return 'Mañana';
+  if (diff === -1) return 'Ayer';
+  return d.toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+}
+
+function updateLabel() {
+  document.getElementById('date-label').textContent = fmtLabel(currentDate);
+}
+
+document.getElementById('prev-day').onclick = () => {
+  currentDate = new Date(currentDate); currentDate.setDate(currentDate.getDate()-1);
+  updateLabel(); loadAll();
+};
+document.getElementById('next-day').onclick = () => {
+  currentDate = new Date(currentDate); currentDate.setDate(currentDate.getDate()+1);
+  updateLabel(); loadAll();
+};
+
+// ═══════════════════ STATUS BAR ══════════════
+function renderApiStatus() {
+  const el = document.getElementById('api-status');
+  if (!el) return;
+  const dot = (s) => `<span class="api-dot ${s}"></span>`;
+  el.innerHTML =
+    `${dot(apiStatus.tsdb)}TSDB &nbsp; ${dot(apiStatus.fd)}FD`;
+}
+
+// ═══════════════════ THESPORTSDB ═════════════
+// Estrategia corregida:
+// 1. eventsday.php?d=DATE&s=Soccer — devuelve TODOS los partidos de fútbol del día
+// 2. También probamos eventsnextleague.php y eventspastleague.php para ligas ARG
+async function fetchTSDB_Day(dateStr) {
+  try {
+    // Endpoint principal: eventos de fútbol del día (funciona con key=3)
+    const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${dateStr}&s=Soccer`);
+    if (!r.ok) {
+      console.warn('[TSDB] eventsday respondió:', r.status);
+      apiStatus.tsdb = 'err';
+      renderApiStatus();
+      return [];
+    }
+    const data = await r.json();
+    const evs = data.events || [];
+    console.log(`[TSDB] eventsday ${dateStr}: ${evs.length} eventos totales de Soccer`);
+    apiStatus.tsdb = evs.length > 0 ? 'ok' : 'err';
+    renderApiStatus();
+    return evs;
+  } catch(e) {
+    console.error('[TSDB] Error:', e);
+    apiStatus.tsdb = 'err';
+    renderApiStatus();
+    return [];
+  }
+}
+
+// Intenta también el endpoint por liga (para el día actual, a veces devuelve más)
+async function fetchTSDB_League(leagueId, dateStr) {
+  try {
+    const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${dateStr}&l=${leagueId}`);
+    if (!r.ok) return [];
+    const data = await r.json();
+    return data.events || [];
+  } catch { return []; }
+}
+
+// Mapeo de nombres de liga TSDB → filtro interno
+const TSDB_LEAGUE_MAP = {
+  'Argentine Primera División': 'arg',
+  'Liga Profesional': 'arg',
+  'Superliga Argentina': 'arg',
+  'Copa Argentina': 'copa',
+  'UEFA Champions League': 'champions',
+  'UEFA Europa League': 'europa',
+  'CONMEBOL World Cup Qualification': 'elim',
+  'FIFA World Cup': 'mundial',
+};
+
+function classifyTSDB(ev) {
+  const league = ev.strLeague || '';
+  for (const [key, val] of Object.entries(TSDB_LEAGUE_MAP)) {
+    if (league.toLowerCase().includes(key.toLowerCase())) return val;
+  }
+  // Intentar por leagueId
+  if (ev.idLeague === '4406') return 'arg';
+  if (ev.idLeague === '4442') return 'copa';
+  return null; // No clasificado → omitir
+}
+
+function normalizeTSDB(ev, filter) {
+  // La API devuelve strTime en UTC. Combinamos con strDate (que es la fecha UTC del evento).
+  const dateStr = ev.strDate || ev.dateEvent || '';
+  const timeStr = ev.strTime || '00:00:00';
+  // Construimos el ISO en UTC explícitamente
+  const utcDate = dateStr + 'T' + timeStr + 'Z';
+
+  const s = (ev.strStatus || '').toLowerCase();
+  const prog = ev.strProgress || '';
+  const finished = s === 'match finished' || s === 'ft' || s.includes('finish');
+  const live = s.includes('progress') || s.includes('live') || (prog !== '' && prog !== '0');
+
+  const hs = ev.intHomeScore != null && ev.intHomeScore !== '' ? parseInt(ev.intHomeScore) : null;
+  const as = ev.intAwayScore != null && ev.intAwayScore !== '' ? parseInt(ev.intAwayScore) : null;
+
+  return {
+    id: 't' + ev.idEvent,
+    source: 'tsdb',
+    filter,
+    utcDate,
+    status: finished ? 'FINISHED' : live ? 'IN_PLAY' : 'TIMED',
+    homeTeam: {
+      name: ev.strHomeTeam,
+      shortName: short(ev.strHomeTeam),
+      crest: ev.strHomeTeamBadge || null,
+    },
+    awayTeam: {
+      name: ev.strAwayTeam,
+      shortName: short(ev.strAwayTeam),
+      crest: ev.strAwayTeamBadge || null,
+    },
+    score: { fullTime: { home: hs, away: as } },
+    tvStation: ev.strTVStation || '',
+  };
+}
+
+// ═══════════════════ FOOTBALL-DATA ═══════════
+async function fetchFD(compId, dateStr) {
+  try {
+    const r = await fetch(
+      `https://api.football-data.org/v4/competitions/${compId}/matches?dateFrom=${dateStr}&dateTo=${dateStr}`,
+      { headers: { 'X-Auth-Token': FD_TOKEN } }
+    );
+    if (!r.ok) {
+      console.warn(`[FD] ${compId} respondió:`, r.status, await r.text().catch(()=>''));
+      return [];
+    }
+    const data = await r.json();
+    const matches = data.matches || [];
+    console.log(`[FD] ${compId} ${dateStr}: ${matches.length} partidos`);
+    const filterKey = Object.entries(FD_COMPS).find(([,v]) => v.id === compId)?.[0] || compId;
+    return matches.map(m => ({
+      id: 'f' + m.id,
+      source: 'fd',
+      filter: filterKey,
+      utcDate: m.utcDate,
+      status: m.status,
+      homeTeam: {
+        name: m.homeTeam?.name,
+        shortName: m.homeTeam?.shortName || m.homeTeam?.name,
+        crest: m.homeTeam?.crest,
+      },
+      awayTeam: {
+        name: m.awayTeam?.name,
+        shortName: m.awayTeam?.shortName || m.awayTeam?.name,
+        crest: m.awayTeam?.crest,
+      },
+      score: m.score,
+      tvStation: '',
+    }));
+  } catch(e) {
+    console.error(`[FD] Error ${compId}:`, e);
+    return [];
+  }
+}
+
+// ═══════════════════ CHANNEL ═════════════════
+function parseTV(tv) {
+  if (!tv) return null;
+  const t = tv.toLowerCase();
+  if (t.includes('premium')) return 'ESPN Premium';
+  if (t.includes('espn 3') || t.includes('espn3')) return 'ESPN 3';
+  if (t.includes('espn 2') || t.includes('espn2')) return 'ESPN 2';
+  if (t.includes('espn')) return 'ESPN';
+  if (t.includes('fox sports 3') || t.includes('fox 3')) return 'Fox Sports 3';
+  if (t.includes('fox sports 2') || t.includes('fox 2')) return 'Fox Sports 2';
+  if (t.includes('fox')) return 'Fox Sports';
+  if (t.includes('tnt')) return 'TNT Sports';
+  if (t.includes('tyc') || t.includes('tyc sports')) return 'TyC Sports';
+  if (t.includes('dsports+') || t.includes('dsports plus')) return 'DSports+';
+  if (t.includes('dsports 2')) return 'DSports 2';
+  if (t.includes('dsports') || t.includes('directv sports')) return 'DSports';
+  return null;
+}
+
+function getChannel(match) {
+  // 1. Si TSDB trajo el canal, usarlo
+  const fromTV = parseTV(match.tvStation);
+  if (fromTV) return fromTV;
+  // 2. Canal por defecto según competición
+  return DEFAULT_CH[match.filter] || 'ESPN';
+}
+
+// ═══════════════════ HELPERS ═════════════════
+function getStatus(m) {
+  const s = m.status;
+  if (s === 'FINISHED') return { type: 'final', label: 'Final' };
+  if (['IN_PLAY', 'PAUSED', 'HALFTIME'].includes(s)) return { type: 'live', label: 'EN VIVO' };
+  if (['TIMED', 'SCHEDULED'].includes(s)) {
+    // utcDate es una fecha ISO en UTC. Convertirla a hora Argentina (UTC-3)
+    const d = new Date(m.utcDate);
+    // Argentina = UTC - 3 horas
+    const arOffset = -3 * 60; // minutos
+    const utcMinutes = d.getUTCHours() * 60 + d.getUTCMinutes();
+    const arMinutes = ((utcMinutes + arOffset) % (24*60) + (24*60)) % (24*60);
+    const h = Math.floor(arMinutes / 60);
+    const min = arMinutes % 60;
+    return { type: 'sched', label: `${pad(h)}:${pad(min)}` };
+  }
+  if (s === 'POSTPONED') return { type: 'final', label: 'POSTERG.' };
+  if (s === 'CANCELLED') return { type: 'final', label: 'CANCEL.' };
+  return { type: 'sched', label: '--:--' };
+}
+
+// Verifica si un partido UTC pertenece a la fecha local Argentina seleccionada
+function matchesDate(m, dateStr) {
+  const d = new Date(m.utcDate);
+  // Convertir a Argentina (UTC-3)
+  const arTime = new Date(d.getTime() - 3 * 3600 * 1000);
+  const arDate = `${arTime.getUTCFullYear()}-${pad(arTime.getUTCMonth()+1)}-${pad(arTime.getUTCDate())}`;
+  return arDate === dateStr;
+}
+
+function isFav(m) {
+  if (!favorites.length) return false;
+  const h = (m.homeTeam?.name || '').toLowerCase();
+  const a = (m.awayTeam?.name || '').toLowerCase();
+  return favorites.some(f => {
+    const fl = f.toLowerCase();
+    return h.includes(fl) || a.includes(fl);
+  });
+}
+
+// ═══════════════════ SHORT NAMES ═════════════
+const SHORT_MAP = {
+  'River Plate':'River','Boca Juniors':'Boca','Racing Club':'Racing',
+  'San Lorenzo':'San Lorenzo','Independiente':'Independiente',
+  'Estudiantes':'Estudiantes','Huracán':'Huracán',
+  'Vélez Sársfield':'Vélez','Argentinos Juniors':'Argentinos',
+  'Talleres':'Talleres','Belgrano':'Belgrano','Lanús':'Lanús',
+  'Platense':'Platense','Godoy Cruz':'Godoy Cruz','Banfield':'Banfield',
+  'Defensa y Justicia':'Defensa','Sarmiento':'Sarmiento',
+  'Newell\'s Old Boys':'Newell\'s','Rosario Central':'Central',
+  'Colón':'Colón','Unión':'Unión','Atlético Tucumán':'Atl. Tucumán',
+  'Gimnasia La Plata':'Gimnasia','Barracas Central':'Barracas',
+  'Instituto':'Instituto','Arsenal':'Arsenal',
+  'Real Madrid':'Real Madrid','FC Barcelona':'Barcelona',
+  'Atlético de Madrid':'Atlético','Manchester City':'Man City',
+  'Manchester United':'Man United','Liverpool':'Liverpool',
+  'Chelsea':'Chelsea','Arsenal FC':'Arsenal',
+  'Bayern München':'Bayern','Borussia Dortmund':'Dortmund',
+  'Paris Saint-Germain':'PSG','Juventus':'Juventus',
+  'Inter Milan':'Inter','AC Milan':'Milan',
+  'AS Roma':'Roma','SSC Napoli':'Napoli',
+  'Argentina':'Argentina','Brasil':'Brasil','Uruguay':'Uruguay',
+};
+function short(n) {
+  if (!n) return '?';
+  return SHORT_MAP[n] || (n.length > 14 ? n.split(' ')[0] : n);
+}
+
+function crestEl(t) {
+  if (t?.crest) return `<img class="crest" src="${t.crest}" alt="" onerror="this.style.display='none'">`;
+  return `<div class="crest-ph">⚽</div>`;
+}
+
+// ═══════════════════ RENDER ══════════════════
+function renderMatch(m) {
+  const st = getStatus(m);
+  const fav = isFav(m);
+  const hs = m.score?.fullTime?.home;
+  const as = m.score?.fullTime?.away;
+  const hasScore = hs != null && as != null;
+  const hw = hasScore && hs > as;
+  const aw = hasScore && as > hs;
+  const isFin = st.type === 'final';
+
+  const timeHTML = st.type === 'live'
+    ? `<span class="badge badge-live">● VIVO</span>`
+    : isFin
+      ? `<span class="badge badge-final">${st.label}</span>`
+      : `<span class="time-txt">${st.label}</span>`;
+
+  const scoreHTML = isFin || st.type === 'live'
+    ? `<div class="score-num">${hasScore ? hs : '-'}<span style="color:var(--text3);margin:0 3px">-</span>${hasScore ? as : '-'}</div>`
+    : `<div class="score-vs">VS</div>`;
+
+  // Canal: se calcula directamente (sin async)
+  const chName = getChannel(m);
+  const ch = CHANNELS[chName];
+  const channelHTML = isFin
+    ? `<span class="ch-none">—</span>`
+    : ch
+      ? `<a class="ch-btn" href="${ch.url}" target="_blank" title="Ver ${chName}">
+           <img class="ch-logo" src="${ch.logo}" alt="${chName}" onerror="this.style.display='none'">
+           <span class="ch-name">${chName}</span>
+         </a>`
+      : `<span class="ch-none">${chName}</span>`;
+
+  return `
+  <div class="match-row" data-id="${m.id}" data-filter="${m.filter}" data-live="${st.type === 'live'}" data-fav="${fav}">
+    ${fav ? '<div class="fav-bar"></div>' : ''}
+    <div class="m-time">${timeHTML}</div>
+    <div class="team home">
+      <span class="team-name${hw ? ' w' : ''}">${m.homeTeam?.shortName || '?'}</span>
+      ${crestEl(m.homeTeam)}
+    </div>
+    <div class="m-score">${scoreHTML}</div>
+    <div class="team away">
+      ${crestEl(m.awayTeam)}
+      <span class="team-name${aw ? ' w' : ''}">${m.awayTeam?.shortName || '?'}</span>
+    </div>
+    <div class="m-channel">${channelHTML}</div>
+  </div>`;
+}
+
+function renderGroup(info, matches) {
+  if (!matches.length) return '';
+  return `
+  <div class="comp-group" data-comp="${info.filter}">
+    <div class="comp-header" onclick="this.closest('.comp-group').classList.toggle('collapsed')">
+      <span class="comp-flag">${info.flag}</span>
+      <span class="comp-name">${info.name}</span>
+      <span class="comp-count">${matches.length} partido${matches.length > 1 ? 's' : ''}</span>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="matches-wrap">${matches.map(renderMatch).join('')}</div>
+  </div>`;
+}
+
+// ═══════════════════ DEDUP ═══════════════════
+function dedupMatches(matches) {
+  const seen = new Set();
+  return matches.filter(m => {
+    const key = `${(m.homeTeam?.name||'').toLowerCase()}_${(m.awayTeam?.name||'').toLowerCase()}_${m.filter}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// ═══════════════════ LOAD ════════════════════
+async function loadAll() {
+  apiStatus = { tsdb: 'loading', fd: 'loading' };
+  renderApiStatus();
+
+  const cont = document.getElementById('container');
+  cont.innerHTML = `<div class="loading"><div class="big-spin"></div>Cargando partidos...</div>`;
+  const dateStr = fmtISO(currentDate);
+
+  console.log(`[Fixture] Cargando fecha: ${dateStr}`);
+
+  // ─── Fetch en paralelo ───
+  const tsdbDayPromise = fetchTSDB_Day(dateStr);
+  const tsdbArgPromise = fetchTSDB_League(TSDB_LEAGUES.arg.id, dateStr);
+  const tsdbCopaPromise = fetchTSDB_League(TSDB_LEAGUES.copa.id, dateStr);
+  const fdPromises = Object.entries(FD_COMPS).map(([, c]) => fetchFD(c.id, dateStr));
+
+  const [tsdbDayEvs, tsdbArgEvs, tsdbCopaEvs, ...fdArrays] = await Promise.all([
+    tsdbDayPromise, tsdbArgPromise, tsdbCopaPromise, ...fdPromises
+  ]);
+
+  // Actualizar estado FD
+  const fdTotal = fdArrays.reduce((acc, arr) => acc + arr.length, 0);
+  apiStatus.fd = fdTotal >= 0 ? 'ok' : 'err'; // FD puede devolver 0 si no hay partidos
+  renderApiStatus();
+
+  // ─── Procesar TSDB ───
+  // Unimos todos los eventos TSDB y clasificamos
+  const allTSDB = [...tsdbDayEvs, ...tsdbArgEvs, ...tsdbCopaEvs];
+
+  // Agregar partidos por liga de TSDB: clasificamos y filtramos por fecha local AR
+  const tsdbByFilter = {};
+  for (const ev of allTSDB) {
+    const filter = classifyTSDB(ev);
+    if (!filter) continue;
+    const norm = normalizeTSDB(ev, filter);
+    // Solo incluir si la fecha en Argentina coincide con la seleccionada
+    if (!matchesDate(norm, dateStr)) continue;
+    if (!tsdbByFilter[filter]) tsdbByFilter[filter] = [];
+    tsdbByFilter[filter].push(norm);
+  }
+
+  // ─── Procesar FD ───
+  const fdKeys = Object.keys(FD_COMPS);
+  const fdByFilter = {};
+  fdKeys.forEach((k, i) => { fdByFilter[k] = fdArrays[i] || []; });
+
+  // ─── Armar grupos ───
+  // Orden preferido
+  const groupOrder = [
+    { filter:'arg',       info:{ ...TSDB_LEAGUES.arg } },
+    { filter:'copa',      info:{ ...TSDB_LEAGUES.copa } },
+    { filter:'champions', info:{ ...FD_COMPS.champions } },
+    { filter:'europa',    info:{ ...FD_COMPS.europa } },
+    { filter:'elim',      info:{ ...FD_COMPS.elim } },
+    { filter:'mundial',   info:{ ...FD_COMPS.mundial } },
+  ];
+
+  const groups = groupOrder.map(({ filter, info }) => {
+    const fromTSDB = tsdbByFilter[filter] || [];
+    const fromFD   = fdByFilter[filter]   || [];
+    // Combinamos y deduplicamos
+    const combined = dedupMatches([...fromTSDB, ...fromFD]);
+    // Favoritos primero
+    const sorted = [
+      ...combined.filter(isFav),
+      ...combined.filter(m => !isFav(m)),
+    ];
+    return { info, matches: sorted };
+  }).filter(g => g.matches.length > 0);
+
+  console.log(`[Fixture] Grupos con partidos: ${groups.length}`);
+
+  if (!groups.length) {
+    cont.innerHTML = `<div class="empty">😴 No hay partidos registrados para esta fecha<br><small style="font-size:14px;margin-top:8px;display:block;color:var(--text3)">Probá con otro día o revisá la consola para ver errores de API</small></div>`;
+    return;
+  }
+
+  cont.innerHTML = groups.map(g => renderGroup(g.info, g.matches)).join('');
+  applyFilter(activeFilter);
+}
+
+// ═══════════════════ FILTER ══════════════════
+function applyFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('.f-btn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+  document.querySelectorAll('.match-row').forEach(r => {
+    if (f === 'all') { r.style.display = ''; return; }
+    if (f === 'live') { r.style.display = r.dataset.live === 'true' ? '' : 'none'; return; }
+    r.style.display = r.dataset.filter === f ? '' : 'none';
+  });
+  document.querySelectorAll('.comp-group').forEach(g => {
+    g.style.display = [...g.querySelectorAll('.match-row')].some(r => r.style.display !== 'none') ? '' : 'none';
+  });
+}
+
+document.querySelectorAll('.f-btn[data-f]').forEach(b => {
+  if (b.id !== 'fav-btn') b.onclick = () => applyFilter(b.dataset.f);
+});
+
+// ═══════════════════ FAVS ════════════════════
+function renderFavTags() {
+  document.getElementById('fav-tags').innerHTML = favorites.map(f => `
+    <div class="fav-tag">★ ${f}<button class="fav-x" onclick="removeFav('${f}')">×</button></div>`).join('');
+}
+function removeFav(n) {
+  favorites = favorites.filter(f => f !== n);
+  try { localStorage.setItem('favs', JSON.stringify(favorites)); } catch(e){}
+  renderFavTags();
+}
+document.getElementById('fav-add').onclick = () => {
+  const inp = document.getElementById('fav-inp'), v = inp.value.trim();
+  if (v && !favorites.includes(v)) {
+    favorites.push(v);
+    try { localStorage.setItem('favs', JSON.stringify(favorites)); } catch(e){}
+    renderFavTags();
+  }
+  inp.value = '';
+};
+document.getElementById('fav-inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('fav-add').click();
+});
+document.getElementById('fav-btn').onclick = () => {
+  renderFavTags();
+  document.getElementById('overlay').classList.add('open');
+};
+document.getElementById('modal-ok').onclick = () => {
+  document.getElementById('overlay').classList.remove('open');
+  loadAll();
+};
+document.getElementById('overlay').onclick = e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+};
+
+// ═══════════════════ INIT ════════════════════
+updateLabel();
+renderApiStatus();
+loadAll();
+// Auto-refresh cada 60s si hay partidos en vivo
+setInterval(() => {
+  if (document.querySelector('[data-live="true"]')) loadAll();
+}, 60000);
+</script>
+</body>
+</html>
