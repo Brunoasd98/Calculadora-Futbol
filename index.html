@@ -127,26 +127,6 @@
   .wf-d{background:linear-gradient(90deg,var(--yellow),rgba(255,193,7,.4));}
   .wf-a{background:linear-gradient(90deg,var(--accent2),rgba(0,153,255,.4));}
   .wpct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.78rem;font-weight:700;color:rgba(0,0,0,.75);}
-
-  /* ⚡ Auto-fill button */
-  .drop-item{position:relative;}
-  .drop-item .autofill-btn{
-    margin-left:auto;flex-shrink:0;
-    background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.3);
-    border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.82rem;
-    color:var(--accent);transition:all .2s;white-space:nowrap;line-height:1;
-  }
-  .drop-item .autofill-btn:hover{background:rgba(0,229,160,.25);border-color:var(--accent);transform:scale(1.05);}
-  .drop-item .autofill-btn.loading{opacity:.6;pointer-events:none;animation:pulse .8s infinite;}
-  @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-
-  /* Toast notification */
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
-    background:#1a2535;border:1px solid var(--accent);border-radius:10px;padding:10px 20px;
-    font-size:.82rem;color:var(--text);z-index:9999;transition:transform .3s ease;pointer-events:none;
-    display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-  .toast.show{transform:translateX(-50%) translateY(0);}
-  .toast.err{border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -154,7 +134,6 @@
   <h1>Calculadora de Fútbol</h1>
   <p>Modelo de Poisson · Datos compartidos entre paneles</p>
 </header>
-<div id="toast" class="toast"></div>
 <div class="main">
 
   <!-- SEARCH -->
@@ -186,7 +165,7 @@
         </div>
       </div>
     </div>
-    <div class="notice-base">⚡ Hacé click en el rayo junto a un equipo para cargar sus estadísticas automáticamente desde la API</div>
+    <div class="notice-base">⚡ Al seleccionar un equipo, el nombre se actualiza en todos los paneles · Ingresá los datos manualmente desde Sofascore o FlashScore</div>
   </div>
 
   <!-- TABS -->
@@ -658,183 +637,12 @@ function resetTeamState(side) {
 let timers={local:null,away:null};
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-// ═══════════════════════════════════════════════════
-//  API CONFIG
-// ═══════════════════════════════════════════════════
-const API_KEY = '3e5b49dfb5c2291216b7937efb8a751e';
-const API_BASE = 'https://v3.football.api-sports.io';
-
-// League IDs map (name fragment → league id)
-const LEAGUE_ID_MAP = [
-  { keys:['La Liga','la liga'],         id:140 },
-  { keys:['Serie A','serie a'],         id:135 },
-  { keys:['Bundesliga','bundesliga'],   id:78  },
-  { keys:['Ligue 1','ligue 1'],         id:61  },
-  { keys:['Premier','premier'],         id:39  },
-  { keys:['Champions','champions'],     id:2   },
-  { keys:['Europa League','europa'],    id:3   },
-  { keys:['Conference','conference'],   id:848 },
-  { keys:['Libertadores','libertadores'],id:13 },
-  { keys:['Sudamericana','sudamericana'],id:11 },
-  { keys:['Liga Argentina','argentina'],id:128 },
-];
-
-function guessLeagueId(leagueStr){
-  const s = leagueStr.toLowerCase();
-  for(const entry of LEAGUE_ID_MAP){
-    if(entry.keys.some(k=>s.includes(k.toLowerCase()))) return entry.id;
-  }
-  return 39; // fallback Premier League
-}
-
-// ─── Toast ───────────────────────────────────────
-let toastTimer;
-function showToast(msg, isErr=false){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (isErr?' err':'');
-  void t.offsetWidth;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
-}
-
-// ─── API helpers ─────────────────────────────────
-async function apiFetch(path){
-  const res = await fetch(API_BASE + path, {
-    headers:{'x-apisports-key': API_KEY}
-  });
-  if(!res.ok) throw new Error('HTTP '+res.status);
-  return res.json();
-}
-
-// ─── AUTO-FILL ────────────────────────────────────
-async function autoFill(name, league, side, teamId, btn){
-  // First select the team
-  selectTeam(name, league, side, teamId);
-
-  btn.classList.add('loading');
-  btn.textContent = '⏳';
-
-  try {
-    const leagueId = guessLeagueId(league);
-    const season   = getCurrentSeason();
-
-    // Fetch team statistics
-    const data = await apiFetch(`/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`);
-    const s = data.response;
-
-    if(!s || !s.fixtures){
-      throw new Error('Sin datos para esta temporada');
-    }
-
-    const played = s.fixtures.played.total || 1;
-
-    // Goals scored avg
-    const gf = (s.goals.for.total.total || 0) / played;
-    // Goals conceded avg
-    const gc = (s.goals.against.total.total || 0) / played;
-    // Shots on goal avg
-    const arco = s.shots ? ((s.shots.on.total || 0) / played) : (gf * 3.5);
-    // Total shots avg
-    const tot  = s.shots ? ((s.shots.total.total || 0) / played) : (gf * 8);
-    // Possession avg
-    const pos  = s.biggest && s.biggest.streak ? (side==='local'?52:48) : (side==='local'?52:48);
-
-    // Fetch last 5 fixtures for cards + goals per match
-    const fixtData = await apiFetch(`/fixtures?team=${teamId}&league=${leagueId}&season=${season}&last=5&status=FT`);
-    const fixtures = fixtData.response || [];
-
-    // Cards per match (last 5)
-    const cardsPerMatch = [];
-    const goalsPerMatch = [];
-
-    for(const fix of fixtures.slice(0,5)){
-      const isHome = fix.teams.home.id === teamId;
-      const teamGoals = isHome ? fix.goals.home : fix.goals.away;
-      goalsPerMatch.push(teamGoals || 0);
-
-      // fetch fixture stats for cards
-      try {
-        const fStats = await apiFetch(`/fixtures/statistics?fixture=${fix.fixture.id}&team=${teamId}`);
-        const stats  = fStats.response[0]?.statistics || [];
-        const yc = stats.find(s=>s.type==='Yellow Cards');
-        const rc = stats.find(s=>s.type==='Red Cards');
-        cardsPerMatch.push((yc?parseInt(yc.value||0):0)+(rc?parseInt(rc.value||0):0));
-      } catch {
-        cardsPerMatch.push(0);
-      }
-    }
-
-    // Pad to 5 if fewer matches
-    while(cardsPerMatch.length < 5) cardsPerMatch.push(0);
-    while(goalsPerMatch.length < 5) goalsPerMatch.push(0);
-
-    // Goalkeeper saves avg (approximate from goals against & shots on target conceded)
-    const par = gc > 0 ? Math.max(1, Math.round(gc * 2.8)) : 3.5;
-
-    // Apply to STATE
-    const suf = side==='local'?'L':'A';
-    STATE['gf'+suf]   = parseFloat(gf.toFixed(2));
-    STATE['gc'+suf]   = parseFloat(gc.toFixed(2));
-    STATE['arco'+suf] = parseFloat(arco.toFixed(1));
-    STATE['tot'+suf]  = parseFloat(tot.toFixed(1));
-    STATE['par'+suf]  = parseFloat(par.toFixed(1));
-    STATE['pos'+suf]  = pos;
-    STATE['t'+suf]    = cardsPerMatch.slice(0,5);
-    STATE['g'+suf]    = goalsPerMatch.slice(0,5);
-
-    applyStateToAllInputs();
-
-    btn.textContent = '✅';
-    btn.classList.remove('loading');
-    setTimeout(()=>{ btn.textContent='⚡'; }, 2000);
-
-    showToast(`✅ ${name} — datos cargados (temp. ${season})`);
-
-  } catch(err){
-    console.error('autoFill error:', err);
-    btn.textContent = '⚡';
-    btn.classList.remove('loading');
-    showToast('❌ Error al cargar datos: '+err.message, true);
-  }
-}
-
-function getCurrentSeason(){
-  const now = new Date();
-  // Football season: if month >= 7 (July) it's current year, else previous year
-  return now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear()-1;
-}
-
-// ─── SEARCH via API (with fallback to local) ─────
 function norm(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
 
 function searchTeams(q, side) {
   if(q.length < 2){ closeDD(side); return; }
   const ql = norm(q);
-  const localResults = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0, 12);
-  if(localResults.length >= 3){
-    renderDD(localResults, side);
-  } else {
-    searchTeamsAPI(q, side);
-  }
-}
-
-async function searchTeamsAPI(q, side){
-  try {
-    const data = await apiFetch(`/teams?search=${encodeURIComponent(q)}`);
-    const apiResults = (data.response||[]).slice(0,10).map(r=>({
-      n: r.team.name,
-      l: r.league ? r.league.name : (r.team.country||''),
-      c: r.team.country||'',
-      id: r.team.id,
-      logo: r.team.logo
-    }));
-    if(apiResults.length) { renderDD(apiResults, side); return; }
-  } catch {}
-  // fallback local
-  const ql = norm(q);
-  const results = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0,12);
+  const results = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0, 12);
   renderDD(results, side);
 }
 
@@ -846,12 +654,8 @@ function renderDD(teams, side) {
     drop.innerHTML = teams.map(t => {
       const name = t.n.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
       const league = t.l.replace(/'/g,'&#39;');
-      const tid = t.id || '';
-      return `<div class="drop-item">
-        <div style="flex:1;min-width:0;cursor:pointer;" onclick='selectTeam("${name}","${league}","${side}",${tid||'null'})'>
-          <div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div>
-        </div>
-        ${tid ? `<button class="autofill-btn" title="Cargar datos automáticamente" onclick='event.stopPropagation();autoFill("${name}","${league}","${side}",${tid},this)'>⚡</button>` : ''}
+      return `<div class="drop-item" onclick='selectTeam("${name}","${league}","${side}")'>
+        <div><div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div></div>
       </div>`;
     }).join('');
   }
@@ -860,14 +664,13 @@ function renderDD(teams, side) {
 
 function closeDD(side){ document.getElementById('drop'+cap(side)).classList.remove('open'); }
 
-function selectTeam(name, league, side, teamId) {
+function selectTeam(name, league, side) {
   closeDD(side);
   document.getElementById('search'+cap(side)).value = name;
   document.getElementById('sel'+cap(side)+'Name').textContent = name;
   document.getElementById('sel'+cap(side)+'League').textContent = league;
   document.getElementById('sel'+cap(side)).classList.add('on');
-  if(side==='local') { STATE.nomL = name; STATE.teamIdL = teamId||null; }
-  else { STATE.nomA = name; STATE.teamIdA = teamId||null; }
+  if(side==='local') STATE.nomL = name; else STATE.nomA = name;
   updateLabels();
 }
 
