@@ -886,6 +886,13 @@ function setStatus(side, msg, type) {
   el.className = 'auto-status ' + type;
 }
 
+// Llama a nuestro proxy en Vercel (evita el bloqueo CORS de Sofascore)
+async function sfetch(path) {
+  const res = await fetch(`/api/sofascore?path=${encodeURIComponent(path)}`);
+  if (!res.ok) throw new Error(`Error ${res.status} al consultar Sofascore`);
+  return res.json();
+}
+
 async function autoLoadStats(side) {
   const teamName = side === 'local' ? STATE.nomL : STATE.nomA;
   if (!teamName) { setStatus(side, '⚠️ Primero seleccioná un equipo', 'err'); return; }
@@ -893,79 +900,33 @@ async function autoLoadStats(side) {
   const btn = document.getElementById('autoBtn' + cap(side));
   btn.disabled = true;
   btn.textContent = '⏳ Buscando...';
-  setStatus(side, '🔍 Buscando estadísticas en Sofascore...', 'loading');
+  setStatus(side, '🔍 Buscando en Sofascore...', 'loading');
 
   try {
-    // 1. Buscar el equipo en Sofascore para obtener su ID real
-    const searchRes = await fetch(
-      `https://api.sofascore.com/api/v1/search/all?q=${encodeURIComponent(teamName)}&page=0`,
-      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
-    );
-    if (!searchRes.ok) throw new Error('No se pudo conectar con Sofascore');
-    const searchData = await searchRes.json();
-
-    // Buscar el primer resultado de tipo "team"
+    // 1. Buscar el equipo para obtener su ID
+    const searchData = await sfetch(`search/all?q=${encodeURIComponent(teamName)}&page=0`);
     const teamResults = (searchData.results || []).filter(r => r.type === 'team');
     if (!teamResults.length) throw new Error('Equipo no encontrado en Sofascore');
 
     const teamId = teamResults[0].entity.id;
     const actualName = teamResults[0].entity.name;
-    setStatus(side, `✅ Equipo encontrado: ${actualName} (ID: ${teamId}). Cargando stats...`, 'loading');
+    setStatus(side, `✅ ${actualName} encontrado. Cargando stats...`, 'loading');
 
-    // 2. Obtener estadísticas de la temporada actual
-    const statsRes = await fetch(
-      `https://api.sofascore.com/api/v1/team/${teamId}/statistics/season`,
-      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
-    );
-    if (!statsRes.ok) throw new Error('No se pudieron obtener las estadísticas');
-    const statsData = await statsRes.json();
+    // 2. Stats de la temporada
+    const statsData = await sfetch(`team/${teamId}/statistics/season`);
 
-    // 3. Obtener últimos partidos para tarjetas y goles recientes
-    const matchesRes = await fetch(
-      `https://api.sofascore.com/api/v1/team/${teamId}/events/last/0`,
-      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
-    );
-    const matchesData = matchesRes.ok ? await matchesRes.json() : { events: [] };
+    // 3. Últimos partidos
+    let matchesData = { events: [] };
+    try { matchesData = await sfetch(`team/${teamId}/events/last/0`); } catch(e) {}
 
     applyStatsToState(side, statsData, matchesData, teamId, actualName);
 
   } catch (err) {
-    console.error('Sofascore error:', err);
-    // Fallback: intentar con proxy CORS
-    await tryWithProxy(side, teamName);
+    console.error('Error:', err);
+    setStatus(side, `❌ ${err.message}`, 'err');
   } finally {
     btn.disabled = false;
     btn.textContent = '⚡ Auto-cargar';
-  }
-}
-
-async function tryWithProxy(side, teamName) {
-  try {
-    setStatus(side, '🔄 Intentando método alternativo...', 'loading');
-    const url = `https://api.sofascore.com/api/v1/search/all?q=${encodeURIComponent(teamName)}&page=0`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('Proxy fallido');
-    const data = await res.json();
-    const teamResults = (data.results || []).filter(r => r.type === 'team');
-    if (!teamResults.length) throw new Error('No encontrado');
-    const teamId = teamResults[0].entity.id;
-
-    const statsUrl = `https://api.sofascore.com/api/v1/team/${teamId}/statistics/season`;
-    const statsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(statsUrl)}`;
-    const statsRes = await fetch(statsProxyUrl);
-    if (!statsRes.ok) throw new Error('Sin stats');
-    const statsData = await statsRes.json();
-
-    const matchesUrl = `https://api.sofascore.com/api/v1/team/${teamId}/events/last/0`;
-    const matchesProxyUrl = `https://corsproxy.io/?${encodeURIComponent(matchesUrl)}`;
-    const matchesRes = await fetch(matchesProxyUrl);
-    const matchesData = matchesRes.ok ? await matchesRes.json() : { events: [] };
-
-    applyStatsToState(side, statsData, matchesData, teamId, teamResults[0].entity.name);
-
-  } catch (e) {
-    setStatus(side, '❌ No se pudo acceder a Sofascore. Probá ingresar los datos manualmente.', 'err');
   }
 }
 
