@@ -1,27 +1,27 @@
 const puppeteer = require('puppeteer');
 
-async function scrapeSofaScore() {
+async function scrapeMatchData() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto('https://www.sofascore.com/');
+    await page.goto('https://www.sofascore.com/'); // Example URL; update as necessary
 
-    // Add your scraping logic here
-    // Example: Scraping match data
-    const data = await page.evaluate(() => {
-        const matches = [];
-        document.querySelectorAll('.match-row').forEach(match => {
-            matches.push({
-                homeTeam: match.querySelector('.team--home').innerText,
-                awayTeam: match.querySelector('.team--away').innerText,
-                score: match.querySelector('.score').innerText
-            });
+    // Replace below selectors with actual ones after inspecting the target web page.
+    const matches = await page.$$eval('.match-class', nodes => {
+        return nodes.map(node => {
+            return {
+                homeTeam: node.querySelector('.home-team-class').innerText,
+                awayTeam: node.querySelector('.away-team-class').innerText,
+                score: node.querySelector('.score-class').innerText,
+                date: node.querySelector('.date-class').innerText
+            };
         });
-        return matches;
     });
 
-    console.log(data);
+    // Save the data to matchData.json
+    const fs = require('fs');
+    fs.writeFileSync('matchData.json', JSON.stringify(matches, null, 2));
 
     await browser.close();
 }
 
-scrapeSofaScore();
+scrapeMatchData();
