@@ -49,18 +49,9 @@
   .sel-card.on{display:flex;}
   .sel-card .sn{font-weight:600;font-size:.9rem;}
   .sel-card .sl{font-size:.74rem;color:var(--muted);}
-  .sel-card .clr{background:none;border:none;color:var(--muted);cursor:pointer;
+  .sel-card .clr{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;
     font-size:1rem;padding:2px 6px;border-radius:4px;transition:color .2s;}
   .sel-card .clr:hover{color:var(--red);}
-  .auto-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#000;
-    font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;
-    cursor:pointer;letter-spacing:.5px;transition:opacity .2s,transform .1s;white-space:nowrap;flex-shrink:0;margin-left:auto;}
-  .auto-btn:hover{opacity:.85;transform:translateY(-1px);}
-  .auto-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
-  .auto-status{font-size:.71rem;margin-top:6px;padding:6px 10px;border-radius:7px;display:none;}
-  .auto-status.ok{display:block;color:var(--accent);background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);}
-  .auto-status.err{display:block;color:#ff9a3c;background:rgba(255,154,60,.07);border:1px solid rgba(255,154,60,.2);}
-  .auto-status.loading{display:block;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--border);}
   .notice-base{font-size:.71rem;color:var(--muted);text-align:center;margin-top:10px;padding:7px 10px;
     background:rgba(255,255,255,.02);border-radius:7px;}
   .tabs-wrap{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px;scrollbar-width:none;}
@@ -136,6 +127,26 @@
   .wf-d{background:linear-gradient(90deg,var(--yellow),rgba(255,193,7,.4));}
   .wf-a{background:linear-gradient(90deg,var(--accent2),rgba(0,153,255,.4));}
   .wpct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.78rem;font-weight:700;color:rgba(0,0,0,.75);}
+
+  /* ⚡ Auto-fill button */
+  .drop-item{position:relative;}
+  .drop-item .autofill-btn{
+    margin-left:auto;flex-shrink:0;
+    background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.3);
+    border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.82rem;
+    color:var(--accent);transition:all .2s;white-space:nowrap;line-height:1;
+  }
+  .drop-item .autofill-btn:hover{background:rgba(0,229,160,.25);border-color:var(--accent);transform:scale(1.05);}
+  .drop-item .autofill-btn.loading{opacity:.6;pointer-events:none;animation:pulse .8s infinite;}
+  @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+  /* Toast notification */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:#1a2535;border:1px solid var(--accent);border-radius:10px;padding:10px 20px;
+    font-size:.82rem;color:var(--text);z-index:9999;transition:transform .3s ease;pointer-events:none;
+    display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .toast.err{border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -143,6 +154,7 @@
   <h1>Calculadora de Fútbol</h1>
   <p>Modelo de Poisson · Datos compartidos entre paneles</p>
 </header>
+<div id="toast" class="toast"></div>
 <div class="main">
 
   <!-- SEARCH -->
@@ -158,10 +170,8 @@
         <div class="dropdown" id="dropLocal"></div>
         <div class="sel-card" id="selLocal">
           <div><div class="sn" id="selLocalName"></div><div class="sl" id="selLocalLeague"></div></div>
-          <button class="auto-btn" id="autoBtnLocal" onclick="autoLoadStats('local')">⚡ Auto-cargar</button>
           <button class="clr" onclick="clearTeam('local')">✕</button>
         </div>
-        <div class="auto-status" id="statusLocal"></div>
       </div>
       <div class="search-box">
         <label>Equipo Visitante</label>
@@ -172,13 +182,11 @@
         <div class="dropdown" id="dropAway"></div>
         <div class="sel-card" id="selAway">
           <div><div class="sn" id="selAwayName"></div><div class="sl" id="selAwayLeague"></div></div>
-          <button class="auto-btn" id="autoBtnAway" onclick="autoLoadStats('away')">⚡ Auto-cargar</button>
           <button class="clr" onclick="clearTeam('away')">✕</button>
         </div>
-        <div class="auto-status" id="statusAway"></div>
       </div>
     </div>
-    <div class="notice-base">⚡ Seleccioná un equipo y presioná "Auto-cargar" para obtener las stats reales de Sofascore automáticamente</div>
+    <div class="notice-base">⚡ Hacé click en el rayo junto a un equipo para cargar sus estadísticas automáticamente desde la API</div>
   </div>
 
   <!-- TABS -->
@@ -650,12 +658,183 @@ function resetTeamState(side) {
 let timers={local:null,away:null};
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
+// ═══════════════════════════════════════════════════
+//  API CONFIG
+// ═══════════════════════════════════════════════════
+const API_KEY = '3e5b49dfb5c2291216b7937efb8a751e';
+const API_BASE = 'https://v3.football.api-sports.io';
+
+// League IDs map (name fragment → league id)
+const LEAGUE_ID_MAP = [
+  { keys:['La Liga','la liga'],         id:140 },
+  { keys:['Serie A','serie a'],         id:135 },
+  { keys:['Bundesliga','bundesliga'],   id:78  },
+  { keys:['Ligue 1','ligue 1'],         id:61  },
+  { keys:['Premier','premier'],         id:39  },
+  { keys:['Champions','champions'],     id:2   },
+  { keys:['Europa League','europa'],    id:3   },
+  { keys:['Conference','conference'],   id:848 },
+  { keys:['Libertadores','libertadores'],id:13 },
+  { keys:['Sudamericana','sudamericana'],id:11 },
+  { keys:['Liga Argentina','argentina'],id:128 },
+];
+
+function guessLeagueId(leagueStr){
+  const s = leagueStr.toLowerCase();
+  for(const entry of LEAGUE_ID_MAP){
+    if(entry.keys.some(k=>s.includes(k.toLowerCase()))) return entry.id;
+  }
+  return 39; // fallback Premier League
+}
+
+// ─── Toast ───────────────────────────────────────
+let toastTimer;
+function showToast(msg, isErr=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isErr?' err':'');
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ─── API helpers ─────────────────────────────────
+async function apiFetch(path){
+  const res = await fetch(API_BASE + path, {
+    headers:{'x-apisports-key': API_KEY}
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+// ─── AUTO-FILL ────────────────────────────────────
+async function autoFill(name, league, side, teamId, btn){
+  // First select the team
+  selectTeam(name, league, side, teamId);
+
+  btn.classList.add('loading');
+  btn.textContent = '⏳';
+
+  try {
+    const leagueId = guessLeagueId(league);
+    const season   = getCurrentSeason();
+
+    // Fetch team statistics
+    const data = await apiFetch(`/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`);
+    const s = data.response;
+
+    if(!s || !s.fixtures){
+      throw new Error('Sin datos para esta temporada');
+    }
+
+    const played = s.fixtures.played.total || 1;
+
+    // Goals scored avg
+    const gf = (s.goals.for.total.total || 0) / played;
+    // Goals conceded avg
+    const gc = (s.goals.against.total.total || 0) / played;
+    // Shots on goal avg
+    const arco = s.shots ? ((s.shots.on.total || 0) / played) : (gf * 3.5);
+    // Total shots avg
+    const tot  = s.shots ? ((s.shots.total.total || 0) / played) : (gf * 8);
+    // Possession avg
+    const pos  = s.biggest && s.biggest.streak ? (side==='local'?52:48) : (side==='local'?52:48);
+
+    // Fetch last 5 fixtures for cards + goals per match
+    const fixtData = await apiFetch(`/fixtures?team=${teamId}&league=${leagueId}&season=${season}&last=5&status=FT`);
+    const fixtures = fixtData.response || [];
+
+    // Cards per match (last 5)
+    const cardsPerMatch = [];
+    const goalsPerMatch = [];
+
+    for(const fix of fixtures.slice(0,5)){
+      const isHome = fix.teams.home.id === teamId;
+      const teamGoals = isHome ? fix.goals.home : fix.goals.away;
+      goalsPerMatch.push(teamGoals || 0);
+
+      // fetch fixture stats for cards
+      try {
+        const fStats = await apiFetch(`/fixtures/statistics?fixture=${fix.fixture.id}&team=${teamId}`);
+        const stats  = fStats.response[0]?.statistics || [];
+        const yc = stats.find(s=>s.type==='Yellow Cards');
+        const rc = stats.find(s=>s.type==='Red Cards');
+        cardsPerMatch.push((yc?parseInt(yc.value||0):0)+(rc?parseInt(rc.value||0):0));
+      } catch {
+        cardsPerMatch.push(0);
+      }
+    }
+
+    // Pad to 5 if fewer matches
+    while(cardsPerMatch.length < 5) cardsPerMatch.push(0);
+    while(goalsPerMatch.length < 5) goalsPerMatch.push(0);
+
+    // Goalkeeper saves avg (approximate from goals against & shots on target conceded)
+    const par = gc > 0 ? Math.max(1, Math.round(gc * 2.8)) : 3.5;
+
+    // Apply to STATE
+    const suf = side==='local'?'L':'A';
+    STATE['gf'+suf]   = parseFloat(gf.toFixed(2));
+    STATE['gc'+suf]   = parseFloat(gc.toFixed(2));
+    STATE['arco'+suf] = parseFloat(arco.toFixed(1));
+    STATE['tot'+suf]  = parseFloat(tot.toFixed(1));
+    STATE['par'+suf]  = parseFloat(par.toFixed(1));
+    STATE['pos'+suf]  = pos;
+    STATE['t'+suf]    = cardsPerMatch.slice(0,5);
+    STATE['g'+suf]    = goalsPerMatch.slice(0,5);
+
+    applyStateToAllInputs();
+
+    btn.textContent = '✅';
+    btn.classList.remove('loading');
+    setTimeout(()=>{ btn.textContent='⚡'; }, 2000);
+
+    showToast(`✅ ${name} — datos cargados (temp. ${season})`);
+
+  } catch(err){
+    console.error('autoFill error:', err);
+    btn.textContent = '⚡';
+    btn.classList.remove('loading');
+    showToast('❌ Error al cargar datos: '+err.message, true);
+  }
+}
+
+function getCurrentSeason(){
+  const now = new Date();
+  // Football season: if month >= 7 (July) it's current year, else previous year
+  return now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear()-1;
+}
+
+// ─── SEARCH via API (with fallback to local) ─────
 function norm(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
 
 function searchTeams(q, side) {
   if(q.length < 2){ closeDD(side); return; }
   const ql = norm(q);
-  const results = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0, 12);
+  const localResults = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0, 12);
+  if(localResults.length >= 3){
+    renderDD(localResults, side);
+  } else {
+    searchTeamsAPI(q, side);
+  }
+}
+
+async function searchTeamsAPI(q, side){
+  try {
+    const data = await apiFetch(`/teams?search=${encodeURIComponent(q)}`);
+    const apiResults = (data.response||[]).slice(0,10).map(r=>({
+      n: r.team.name,
+      l: r.league ? r.league.name : (r.team.country||''),
+      c: r.team.country||'',
+      id: r.team.id,
+      logo: r.team.logo
+    }));
+    if(apiResults.length) { renderDD(apiResults, side); return; }
+  } catch {}
+  // fallback local
+  const ql = norm(q);
+  const results = TEAMS.filter(t => norm(t.n).includes(ql)).slice(0,12);
   renderDD(results, side);
 }
 
@@ -667,8 +846,12 @@ function renderDD(teams, side) {
     drop.innerHTML = teams.map(t => {
       const name = t.n.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
       const league = t.l.replace(/'/g,'&#39;');
-      return `<div class="drop-item" onclick='selectTeam("${name}","${league}","${side}")'>
-        <div><div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div></div>
+      const tid = t.id || '';
+      return `<div class="drop-item">
+        <div style="flex:1;min-width:0;cursor:pointer;" onclick='selectTeam("${name}","${league}","${side}",${tid||'null'})'>
+          <div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div>
+        </div>
+        ${tid ? `<button class="autofill-btn" title="Cargar datos automáticamente" onclick='event.stopPropagation();autoFill("${name}","${league}","${side}",${tid},this)'>⚡</button>` : ''}
       </div>`;
     }).join('');
   }
@@ -677,13 +860,14 @@ function renderDD(teams, side) {
 
 function closeDD(side){ document.getElementById('drop'+cap(side)).classList.remove('open'); }
 
-function selectTeam(name, league, side) {
+function selectTeam(name, league, side, teamId) {
   closeDD(side);
   document.getElementById('search'+cap(side)).value = name;
   document.getElementById('sel'+cap(side)+'Name').textContent = name;
   document.getElementById('sel'+cap(side)+'League').textContent = league;
   document.getElementById('sel'+cap(side)).classList.add('on');
-  if(side==='local') STATE.nomL = name; else STATE.nomA = name;
+  if(side==='local') { STATE.nomL = name; STATE.teamIdL = teamId||null; }
+  else { STATE.nomA = name; STATE.teamIdA = teamId||null; }
   updateLabels();
 }
 
@@ -848,232 +1032,6 @@ document.addEventListener('click',e=>{
     if(box&&!box.contains(e.target))closeDD(side);
   });
 });
-
-// ═══════════════════════════════════════════════════
-//  AUTO-CARGA DE STATS DESDE SOFASCORE
-// ═══════════════════════════════════════════════════
-
-const SOFASCORE_TEAM_IDS = {
-  // La Liga
-  "Real Madrid":2829,"Barcelona":2817,"Atlético de Madrid":2836,"Villarreal":2819,
-  "Sevilla":2833,"Real Betis":2818,"Real Sociedad":2824,"Athletic Club":2825,
-  "Valencia":2821,"Celta Vigo":2823,"Espanyol":2814,"Getafe":2922,"Osasuna":2820,
-  "Rayo Vallecano":2826,"Las Palmas":2827,"Mallorca":2830,"Alaves":2828,"Girona":2922,
-  // Premier League
-  "Manchester City":17,"Liverpool":44,"Arsenal":42,"Aston Villa":40,
-  "Manchester United":35,"Tottenham Hotspur":33,"Chelsea":38,"Newcastle United":39,
-  // Bundesliga
-  "Bayern Munich":2672,"Borussia Dortmund":2673,"Bayer Leverkusen":2681,
-  "RB Leipzig":332881,"Stuttgart":2677,
-  // Serie A
-  "Inter Milan":2697,"AC Milan":2692,"Juventus":2686,"Roma":2699,"Lazio":2695,
-  "Atalanta":2704,"Bologna":2696,"Napoli":2694,
-  // Ligue 1
-  "Paris Saint-Germain":1644,"Monaco":1641,"Marseille":1640,"Lyon":1643,
-  "Lille":1639,"Brest":1647,
-  // Champions otros
-  "Benfica":1721,"Sporting CP":1723,"Porto":1720,"Celtic":2408,"Club Brugge":2672,
-  "Ajax":674,"PSV Eindhoven":672,"Feyenoord":675,
-  // Argentina
-  "River Plate":75,"Boca Juniors":74,"Racing Club":76,"Independiente":77,
-  "San Lorenzo":78,"Estudiantes":79,"Vélez Sársfield":80,"Huracán":81,
-  "Lanús":82,"Talleres":83,"Belgrano":84,"Godoy Cruz":85,
-};
-
-function setStatus(side, msg, type) {
-  const el = document.getElementById('status' + cap(side));
-  el.textContent = msg;
-  el.className = 'auto-status ' + type;
-}
-
-// IDs de ligas en API-Football
-const LEAGUE_IDS = {
-  'Champions League': 2, 'Europa League': 3, 'La Liga': 140,
-  'Premier League': 39, 'Serie A': 135, 'Bundesliga': 78,
-  'Ligue 1': 61, 'Argentina': 128, 'Libertadores': 13, 'Sudamericana': 11
-};
-const SEASON = 2024;
-
-// Llama al proxy en Vercel
-async function apifetch(endpoint, params = {}) {
-  const qs = new URLSearchParams({ endpoint, ...params }).toString();
-  const res = await fetch(`/api/football?${qs}`);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  const data = await res.json();
-  if (data.errors && Object.keys(data.errors).length) {
-    const errMsg = Object.values(data.errors).join(', ');
-    throw new Error(errMsg);
-  }
-  return data;
-}
-
-async function autoLoadStats(side) {
-  const teamName = side === 'local' ? STATE.nomL : STATE.nomA;
-  if (!teamName) { setStatus(side, '⚠️ Primero seleccioná un equipo', 'err'); return; }
-
-  const btn = document.getElementById('autoBtn' + cap(side));
-  btn.disabled = true;
-  btn.textContent = '⏳ Buscando...';
-  setStatus(side, '🔍 Buscando equipo...', 'loading');
-
-  try {
-    // 1. Buscar el equipo por nombre
-    const searchData = await apifetch('teams', { search: teamName });
-    const teams = searchData.response || [];
-    if (!teams.length) throw new Error('Equipo no encontrado. Probá con otro nombre.');
-
-    const team = teams[0].team;
-    const teamId = team.id;
-    setStatus(side, `✅ ${team.name} encontrado. Buscando liga...`, 'loading');
-
-    // 2. Buscar en qué liga juega este equipo esta temporada
-    const leaguesData = await apifetch('leagues', { team: teamId, season: SEASON, current: 'true' });
-    const leagues = leaguesData.response || [];
-
-    // Priorizar ligas conocidas
-    let leagueId = null;
-    for (const [name, id] of Object.entries(LEAGUE_IDS)) {
-      if (leagues.some(l => l.league.name.toLowerCase().includes(name.toLowerCase()))) {
-        leagueId = id; break;
-      }
-    }
-    if (!leagueId && leagues.length) leagueId = leagues[0].league.id;
-    if (!leagueId) throw new Error('No se encontró liga activa para este equipo');
-
-    setStatus(side, `📊 Cargando estadísticas...`, 'loading');
-
-    // 3. Stats de la temporada (endpoint correcto con los 3 params obligatorios)
-    const statsData = await apifetch('teams/statistics', {
-      team: teamId,
-      league: leagueId,
-      season: SEASON
-    });
-    const stats = statsData.response;
-    if (!stats) throw new Error('Sin estadísticas disponibles para esta temporada');
-
-    // 4. Últimos 5 partidos finalizados
-    const fixturesData = await apifetch('fixtures', { team: teamId, last: 5, status: 'FT' });
-    const fixtures = fixturesData.response || [];
-
-    // Extraer promedios de la temporada
-    const played = stats.fixtures?.played?.total || 1;
-    const goalsFor    = stats.goals?.for?.total?.total   || 0;
-    const goalsAgainst= stats.goals?.against?.total?.total || 0;
-    const shotsOn     = stats.shots?.on?.total    || 0;
-    const shotsTotal  = stats.shots?.total?.total  || 0;
-
-    const gfAvg    = +(goalsFor / played).toFixed(2);
-    const gcAvg    = +(goalsAgainst / played).toFixed(2);
-    const arcoAvg  = +(shotsOn / played).toFixed(1);
-    const totAvg   = +(shotsTotal / played).toFixed(1);
-    const savesAvg = +(gcAvg * 2.8).toFixed(1);
-
-    // Goles marcados en últimos 5
-    const last5Goals = fixtures.map(f => {
-      const isHome = f.teams.home.id === teamId;
-      return isHome ? (f.goals.home ?? 0) : (f.goals.away ?? 0);
-    });
-
-    // Tarjetas en últimos 5 (estimado del promedio de temporada)
-    const yellowTotal = Object.values(stats.cards?.yellow || {}).reduce((s,v) => s + (v.total||0), 0);
-    const avgCards = played > 0 ? Math.round(yellowTotal / played) : 2;
-    const last5Cards = fixtures.map(() => avgCards);
-
-    while(last5Goals.length < 5) last5Goals.unshift(Math.round(gfAvg));
-    while(last5Cards.length < 5) last5Cards.unshift(avgCards);
-
-    // Aplicar al STATE
-    if(side === 'local') {
-      STATE.gfL=gfAvg; STATE.gcL=gcAvg; STATE.arcoL=arcoAvg;
-      STATE.totL=totAvg; STATE.parL=savesAvg;
-      STATE.gL=last5Goals.slice(0,5); STATE.tL=last5Cards.slice(0,5);
-    } else {
-      STATE.gfA=gfAvg; STATE.gcA=gcAvg; STATE.arcoA=arcoAvg;
-      STATE.totA=totAvg; STATE.parA=savesAvg;
-      STATE.gA=last5Goals.slice(0,5); STATE.tA=last5Cards.slice(0,5);
-    }
-
-    applyStateToAllInputs();
-    const leagueName = leagues.find(l => l.league.id === leagueId)?.league.name || '';
-    setStatus(side, `✅ ${team.name} · ${leagueName} · ${played} partidos · ${gfAvg} goles/partido`, 'ok');
-
-  } catch (err) {
-    console.error('Error:', err);
-    setStatus(side, `❌ ${err.message}`, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '⚡ Auto-cargar';
-  }
-}
-
-function applyStatsToState(side, statsData, matchesData, teamId, teamName) {
-  try {
-    const stats = statsData.statistics || statsData;
-    const s = side;
-
-    // Extraer stats de la temporada
-    const totalMatches = stats.matches || stats.totalMatches || 20;
-    const goalsScored = stats.goalsScored || stats.goals || 0;
-    const goalsConceded = stats.goalsConceded || stats.goalsAgainstTotal || 0;
-    const shotsOnTarget = stats.shotsOnTarget || stats.onTargetScoringAttempts || 0;
-    const shotsTotal = stats.shots || stats.totalScoringAttempts || 0;
-    const saves = stats.saves || stats.savedShotsFromInsideTheBox || 0;
-
-    const gfAvg = totalMatches > 0 ? goalsScored / totalMatches : 1.2;
-    const gcAvg = totalMatches > 0 ? goalsConceded / totalMatches : 1.1;
-    const arcoAvg = totalMatches > 0 ? shotsOnTarget / totalMatches : 4.5;
-    const totAvg = totalMatches > 0 ? shotsTotal / totalMatches : 12;
-    const savesAvg = totalMatches > 0 ? saves / totalMatches : 3.5;
-
-    // Últimos 5 partidos
-    const events = (matchesData.events || [])
-      .filter(e => e.status && e.status.type === 'finished')
-      .slice(-5);
-
-    const last5Goals = events.map(e => {
-      const isHome = e.homeTeam && e.homeTeam.id === teamId;
-      return isHome ? (e.homeScore?.current || 0) : (e.awayScore?.current || 0);
-    });
-    const last5Cards = events.map(e => {
-      const isHome = e.homeTeam && e.homeTeam.id === teamId;
-      // Sofascore no siempre da tarjetas en el listado, usar promedio estimado
-      return isHome ? Math.round((e.homeRedCards||0)*2 + (e.homeYellowCards||0)) 
-                    : Math.round((e.awayRedCards||0)*2 + (e.awayYellowCards||0));
-    });
-
-    // Rellenar con valores si hay menos de 5 partidos
-    while(last5Goals.length < 5) last5Goals.unshift(Math.round(gfAvg));
-    while(last5Cards.length < 5) last5Cards.unshift(2);
-
-    // Aplicar al STATE
-    if(s === 'local') {
-      STATE.gfL = +gfAvg.toFixed(2);
-      STATE.gcL = +gcAvg.toFixed(2);
-      STATE.arcoL = +arcoAvg.toFixed(1);
-      STATE.totL = +totAvg.toFixed(1);
-      STATE.parL = +savesAvg.toFixed(1);
-      STATE.gL = last5Goals.slice(-5);
-      STATE.tL = last5Cards.slice(-5);
-    } else {
-      STATE.gfA = +gfAvg.toFixed(2);
-      STATE.gcA = +gcAvg.toFixed(2);
-      STATE.arcoA = +arcoAvg.toFixed(1);
-      STATE.totA = +totAvg.toFixed(1);
-      STATE.parA = +savesAvg.toFixed(1);
-      STATE.gA = last5Goals.slice(-5);
-      STATE.tA = last5Cards.slice(-5);
-    }
-
-    applyStateToAllInputs();
-    setStatus(s,
-      `✅ Stats cargadas — ${teamName} · ${totalMatches} partidos · ${gfAvg.toFixed(2)} goles/partido`,
-      'ok'
-    );
-  } catch(e) {
-    setStatus(side, '⚠️ Stats parciales cargadas. Revisá los valores manualmente.', 'err');
-    console.error('applyStats error:', e);
-  }
-}
 
 // Init
 updateAvgTarjetas();
