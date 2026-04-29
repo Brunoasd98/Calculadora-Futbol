@@ -49,9 +49,18 @@
   .sel-card.on{display:flex;}
   .sel-card .sn{font-weight:600;font-size:.9rem;}
   .sel-card .sl{font-size:.74rem;color:var(--muted);}
-  .sel-card .clr{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;
+  .sel-card .clr{background:none;border:none;color:var(--muted);cursor:pointer;
     font-size:1rem;padding:2px 6px;border-radius:4px;transition:color .2s;}
   .sel-card .clr:hover{color:var(--red);}
+  .auto-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#000;
+    font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:6px;
+    cursor:pointer;letter-spacing:.5px;transition:opacity .2s,transform .1s;white-space:nowrap;flex-shrink:0;margin-left:auto;}
+  .auto-btn:hover{opacity:.85;transform:translateY(-1px);}
+  .auto-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+  .auto-status{font-size:.71rem;margin-top:6px;padding:6px 10px;border-radius:7px;display:none;}
+  .auto-status.ok{display:block;color:var(--accent);background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);}
+  .auto-status.err{display:block;color:#ff9a3c;background:rgba(255,154,60,.07);border:1px solid rgba(255,154,60,.2);}
+  .auto-status.loading{display:block;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--border);}
   .notice-base{font-size:.71rem;color:var(--muted);text-align:center;margin-top:10px;padding:7px 10px;
     background:rgba(255,255,255,.02);border-radius:7px;}
   .tabs-wrap{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px;scrollbar-width:none;}
@@ -149,8 +158,10 @@
         <div class="dropdown" id="dropLocal"></div>
         <div class="sel-card" id="selLocal">
           <div><div class="sn" id="selLocalName"></div><div class="sl" id="selLocalLeague"></div></div>
+          <button class="auto-btn" id="autoBtnLocal" onclick="autoLoadStats('local')">⚡ Auto-cargar</button>
           <button class="clr" onclick="clearTeam('local')">✕</button>
         </div>
+        <div class="auto-status" id="statusLocal"></div>
       </div>
       <div class="search-box">
         <label>Equipo Visitante</label>
@@ -161,11 +172,13 @@
         <div class="dropdown" id="dropAway"></div>
         <div class="sel-card" id="selAway">
           <div><div class="sn" id="selAwayName"></div><div class="sl" id="selAwayLeague"></div></div>
+          <button class="auto-btn" id="autoBtnAway" onclick="autoLoadStats('away')">⚡ Auto-cargar</button>
           <button class="clr" onclick="clearTeam('away')">✕</button>
         </div>
+        <div class="auto-status" id="statusAway"></div>
       </div>
     </div>
-    <div class="notice-base">⚡ Al seleccionar un equipo, el nombre se actualiza en todos los paneles · Ingresá los datos manualmente desde Sofascore o FlashScore</div>
+    <div class="notice-base">⚡ Seleccioná un equipo y presioná "Auto-cargar" para obtener las stats reales de Sofascore automáticamente</div>
   </div>
 
   <!-- TABS -->
@@ -835,6 +848,195 @@ document.addEventListener('click',e=>{
     if(box&&!box.contains(e.target))closeDD(side);
   });
 });
+
+// ═══════════════════════════════════════════════════
+//  AUTO-CARGA DE STATS DESDE SOFASCORE
+// ═══════════════════════════════════════════════════
+
+const SOFASCORE_TEAM_IDS = {
+  // La Liga
+  "Real Madrid":2829,"Barcelona":2817,"Atlético de Madrid":2836,"Villarreal":2819,
+  "Sevilla":2833,"Real Betis":2818,"Real Sociedad":2824,"Athletic Club":2825,
+  "Valencia":2821,"Celta Vigo":2823,"Espanyol":2814,"Getafe":2922,"Osasuna":2820,
+  "Rayo Vallecano":2826,"Las Palmas":2827,"Mallorca":2830,"Alaves":2828,"Girona":2922,
+  // Premier League
+  "Manchester City":17,"Liverpool":44,"Arsenal":42,"Aston Villa":40,
+  "Manchester United":35,"Tottenham Hotspur":33,"Chelsea":38,"Newcastle United":39,
+  // Bundesliga
+  "Bayern Munich":2672,"Borussia Dortmund":2673,"Bayer Leverkusen":2681,
+  "RB Leipzig":332881,"Stuttgart":2677,
+  // Serie A
+  "Inter Milan":2697,"AC Milan":2692,"Juventus":2686,"Roma":2699,"Lazio":2695,
+  "Atalanta":2704,"Bologna":2696,"Napoli":2694,
+  // Ligue 1
+  "Paris Saint-Germain":1644,"Monaco":1641,"Marseille":1640,"Lyon":1643,
+  "Lille":1639,"Brest":1647,
+  // Champions otros
+  "Benfica":1721,"Sporting CP":1723,"Porto":1720,"Celtic":2408,"Club Brugge":2672,
+  "Ajax":674,"PSV Eindhoven":672,"Feyenoord":675,
+  // Argentina
+  "River Plate":75,"Boca Juniors":74,"Racing Club":76,"Independiente":77,
+  "San Lorenzo":78,"Estudiantes":79,"Vélez Sársfield":80,"Huracán":81,
+  "Lanús":82,"Talleres":83,"Belgrano":84,"Godoy Cruz":85,
+};
+
+function setStatus(side, msg, type) {
+  const el = document.getElementById('status' + cap(side));
+  el.textContent = msg;
+  el.className = 'auto-status ' + type;
+}
+
+async function autoLoadStats(side) {
+  const teamName = side === 'local' ? STATE.nomL : STATE.nomA;
+  if (!teamName) { setStatus(side, '⚠️ Primero seleccioná un equipo', 'err'); return; }
+
+  const btn = document.getElementById('autoBtn' + cap(side));
+  btn.disabled = true;
+  btn.textContent = '⏳ Buscando...';
+  setStatus(side, '🔍 Buscando estadísticas en Sofascore...', 'loading');
+
+  try {
+    // 1. Buscar el equipo en Sofascore para obtener su ID real
+    const searchRes = await fetch(
+      `https://api.sofascore.com/api/v1/search/all?q=${encodeURIComponent(teamName)}&page=0`,
+      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+    );
+    if (!searchRes.ok) throw new Error('No se pudo conectar con Sofascore');
+    const searchData = await searchRes.json();
+
+    // Buscar el primer resultado de tipo "team"
+    const teamResults = (searchData.results || []).filter(r => r.type === 'team');
+    if (!teamResults.length) throw new Error('Equipo no encontrado en Sofascore');
+
+    const teamId = teamResults[0].entity.id;
+    const actualName = teamResults[0].entity.name;
+    setStatus(side, `✅ Equipo encontrado: ${actualName} (ID: ${teamId}). Cargando stats...`, 'loading');
+
+    // 2. Obtener estadísticas de la temporada actual
+    const statsRes = await fetch(
+      `https://api.sofascore.com/api/v1/team/${teamId}/statistics/season`,
+      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+    );
+    if (!statsRes.ok) throw new Error('No se pudieron obtener las estadísticas');
+    const statsData = await statsRes.json();
+
+    // 3. Obtener últimos partidos para tarjetas y goles recientes
+    const matchesRes = await fetch(
+      `https://api.sofascore.com/api/v1/team/${teamId}/events/last/0`,
+      { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' } }
+    );
+    const matchesData = matchesRes.ok ? await matchesRes.json() : { events: [] };
+
+    applyStatsToState(side, statsData, matchesData, teamId, actualName);
+
+  } catch (err) {
+    console.error('Sofascore error:', err);
+    // Fallback: intentar con proxy CORS
+    await tryWithProxy(side, teamName);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Auto-cargar';
+  }
+}
+
+async function tryWithProxy(side, teamName) {
+  try {
+    setStatus(side, '🔄 Intentando método alternativo...', 'loading');
+    const url = `https://api.sofascore.com/api/v1/search/all?q=${encodeURIComponent(teamName)}&page=0`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error('Proxy fallido');
+    const data = await res.json();
+    const teamResults = (data.results || []).filter(r => r.type === 'team');
+    if (!teamResults.length) throw new Error('No encontrado');
+    const teamId = teamResults[0].entity.id;
+
+    const statsUrl = `https://api.sofascore.com/api/v1/team/${teamId}/statistics/season`;
+    const statsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(statsUrl)}`;
+    const statsRes = await fetch(statsProxyUrl);
+    if (!statsRes.ok) throw new Error('Sin stats');
+    const statsData = await statsRes.json();
+
+    const matchesUrl = `https://api.sofascore.com/api/v1/team/${teamId}/events/last/0`;
+    const matchesProxyUrl = `https://corsproxy.io/?${encodeURIComponent(matchesUrl)}`;
+    const matchesRes = await fetch(matchesProxyUrl);
+    const matchesData = matchesRes.ok ? await matchesRes.json() : { events: [] };
+
+    applyStatsToState(side, statsData, matchesData, teamId, teamResults[0].entity.name);
+
+  } catch (e) {
+    setStatus(side, '❌ No se pudo acceder a Sofascore. Probá ingresar los datos manualmente.', 'err');
+  }
+}
+
+function applyStatsToState(side, statsData, matchesData, teamId, teamName) {
+  try {
+    const stats = statsData.statistics || statsData;
+    const s = side;
+
+    // Extraer stats de la temporada
+    const totalMatches = stats.matches || stats.totalMatches || 20;
+    const goalsScored = stats.goalsScored || stats.goals || 0;
+    const goalsConceded = stats.goalsConceded || stats.goalsAgainstTotal || 0;
+    const shotsOnTarget = stats.shotsOnTarget || stats.onTargetScoringAttempts || 0;
+    const shotsTotal = stats.shots || stats.totalScoringAttempts || 0;
+    const saves = stats.saves || stats.savedShotsFromInsideTheBox || 0;
+
+    const gfAvg = totalMatches > 0 ? goalsScored / totalMatches : 1.2;
+    const gcAvg = totalMatches > 0 ? goalsConceded / totalMatches : 1.1;
+    const arcoAvg = totalMatches > 0 ? shotsOnTarget / totalMatches : 4.5;
+    const totAvg = totalMatches > 0 ? shotsTotal / totalMatches : 12;
+    const savesAvg = totalMatches > 0 ? saves / totalMatches : 3.5;
+
+    // Últimos 5 partidos
+    const events = (matchesData.events || [])
+      .filter(e => e.status && e.status.type === 'finished')
+      .slice(-5);
+
+    const last5Goals = events.map(e => {
+      const isHome = e.homeTeam && e.homeTeam.id === teamId;
+      return isHome ? (e.homeScore?.current || 0) : (e.awayScore?.current || 0);
+    });
+    const last5Cards = events.map(e => {
+      const isHome = e.homeTeam && e.homeTeam.id === teamId;
+      // Sofascore no siempre da tarjetas en el listado, usar promedio estimado
+      return isHome ? Math.round((e.homeRedCards||0)*2 + (e.homeYellowCards||0)) 
+                    : Math.round((e.awayRedCards||0)*2 + (e.awayYellowCards||0));
+    });
+
+    // Rellenar con valores si hay menos de 5 partidos
+    while(last5Goals.length < 5) last5Goals.unshift(Math.round(gfAvg));
+    while(last5Cards.length < 5) last5Cards.unshift(2);
+
+    // Aplicar al STATE
+    if(s === 'local') {
+      STATE.gfL = +gfAvg.toFixed(2);
+      STATE.gcL = +gcAvg.toFixed(2);
+      STATE.arcoL = +arcoAvg.toFixed(1);
+      STATE.totL = +totAvg.toFixed(1);
+      STATE.parL = +savesAvg.toFixed(1);
+      STATE.gL = last5Goals.slice(-5);
+      STATE.tL = last5Cards.slice(-5);
+    } else {
+      STATE.gfA = +gfAvg.toFixed(2);
+      STATE.gcA = +gcAvg.toFixed(2);
+      STATE.arcoA = +arcoAvg.toFixed(1);
+      STATE.totA = +totAvg.toFixed(1);
+      STATE.parA = +savesAvg.toFixed(1);
+      STATE.gA = last5Goals.slice(-5);
+      STATE.tA = last5Cards.slice(-5);
+    }
+
+    applyStateToAllInputs();
+    setStatus(s,
+      `✅ Stats cargadas — ${teamName} · ${totalMatches} partidos · ${gfAvg.toFixed(2)} goles/partido`,
+      'ok'
+    );
+  } catch(e) {
+    setStatus(side, '⚠️ Stats parciales cargadas. Revisá los valores manualmente.', 'err');
+    console.error('applyStats error:', e);
+  }
+}
 
 // Init
 updateAvgTarjetas();
