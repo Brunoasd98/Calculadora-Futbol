@@ -1,0 +1,1 @@
+{"name": "Calculadora-Futbol","version": "1.0.0","description": "A web scraping tool for SofaScore data.","main": "index.js","scripts": {"test": "echo 'Error: no test specified' && exit 1"},"dependencies": {"puppeteer": "^20.0.0","express": "^4.17.1"}}
