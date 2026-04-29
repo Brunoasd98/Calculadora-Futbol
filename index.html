@@ -892,15 +892,18 @@ const LEAGUE_IDS = {
   'Premier League': 39, 'Serie A': 135, 'Bundesliga': 78,
   'Ligue 1': 61, 'Argentina': 128, 'Libertadores': 13, 'Sudamericana': 11
 };
-
-// Temporada actual
 const SEASON = 2024;
 
-async function apifetch(path) {
-  const res = await fetch(`/api/football?path=${encodeURIComponent(path)}`);
+// Llama al proxy en Vercel
+async function apifetch(endpoint, params = {}) {
+  const qs = new URLSearchParams({ endpoint, ...params }).toString();
+  const res = await fetch(`/api/football?${qs}`);
   if (!res.ok) throw new Error(`Error ${res.status}`);
   const data = await res.json();
-  if (data.errors && Object.keys(data.errors).length) throw new Error(JSON.stringify(data.errors));
+  if (data.errors && Object.keys(data.errors).length) {
+    const errMsg = Object.values(data.errors).join(', ');
+    throw new Error(errMsg);
+  }
   return data;
 }
 
@@ -915,71 +918,69 @@ async function autoLoadStats(side) {
 
   try {
     // 1. Buscar el equipo por nombre
-    const searchData = await apifetch(`teams?search=${encodeURIComponent(teamName)}`);
+    const searchData = await apifetch('teams', { search: teamName });
     const teams = searchData.response || [];
-    if (!teams.length) throw new Error('Equipo no encontrado');
+    if (!teams.length) throw new Error('Equipo no encontrado. Probá con otro nombre.');
 
     const team = teams[0].team;
     const teamId = team.id;
-    setStatus(side, `✅ ${team.name} encontrado. Cargando stats...`, 'loading');
+    setStatus(side, `✅ ${team.name} encontrado. Buscando liga...`, 'loading');
 
     // 2. Buscar en qué liga juega este equipo esta temporada
-    const leaguesData = await apifetch(`leagues?team=${teamId}&season=${SEASON}&current=true`);
+    const leaguesData = await apifetch('leagues', { team: teamId, season: SEASON, current: 'true' });
     const leagues = leaguesData.response || [];
 
-    // Priorizar ligas conocidas, si no tomar la primera disponible
+    // Priorizar ligas conocidas
     let leagueId = null;
-    const leagueNames = leagues.map(l => l.league.name);
     for (const [name, id] of Object.entries(LEAGUE_IDS)) {
-      if (leagueNames.some(n => n.toLowerCase().includes(name.toLowerCase()))) {
+      if (leagues.some(l => l.league.name.toLowerCase().includes(name.toLowerCase()))) {
         leagueId = id; break;
       }
     }
     if (!leagueId && leagues.length) leagueId = leagues[0].league.id;
-    if (!leagueId) throw new Error('No se encontró liga para este equipo');
+    if (!leagueId) throw new Error('No se encontró liga activa para este equipo');
 
-    // 3. Stats de la temporada en esa liga
-    const statsData = await apifetch(`teams/statistics?team=${teamId}&league=${leagueId}&season=${SEASON}`);
+    setStatus(side, `📊 Cargando estadísticas...`, 'loading');
+
+    // 3. Stats de la temporada (endpoint correcto con los 3 params obligatorios)
+    const statsData = await apifetch('teams/statistics', {
+      team: teamId,
+      league: leagueId,
+      season: SEASON
+    });
     const stats = statsData.response;
-    if (!stats) throw new Error('Sin estadísticas disponibles');
+    if (!stats) throw new Error('Sin estadísticas disponibles para esta temporada');
 
-    // 4. Últimos 5 partidos
-    const fixturesData = await apifetch(`fixtures?team=${teamId}&last=5&status=FT`);
+    // 4. Últimos 5 partidos finalizados
+    const fixturesData = await apifetch('fixtures', { team: teamId, last: 5, status: 'FT' });
     const fixtures = fixturesData.response || [];
 
-    // Extraer promedios
+    // Extraer promedios de la temporada
     const played = stats.fixtures?.played?.total || 1;
-    const goalsFor = stats.goals?.for?.total?.total || 0;
-    const goalsAgainst = stats.goals?.against?.total?.total || 0;
-    const shotsOn = stats.shots?.on?.total || 0;
-    const shotsTotal = stats.shots?.total?.total || 0;
+    const goalsFor    = stats.goals?.for?.total?.total   || 0;
+    const goalsAgainst= stats.goals?.against?.total?.total || 0;
+    const shotsOn     = stats.shots?.on?.total    || 0;
+    const shotsTotal  = stats.shots?.total?.total  || 0;
 
-    const gfAvg = +(goalsFor / played).toFixed(2);
-    const gcAvg = +(goalsAgainst / played).toFixed(2);
-    const arcoAvg = +(shotsOn / played).toFixed(1);
-    const totAvg = +(shotsTotal / played).toFixed(1);
-    // Paradas: no disponible directamente, estimado
+    const gfAvg    = +(goalsFor / played).toFixed(2);
+    const gcAvg    = +(goalsAgainst / played).toFixed(2);
+    const arcoAvg  = +(shotsOn / played).toFixed(1);
+    const totAvg   = +(shotsTotal / played).toFixed(1);
     const savesAvg = +(gcAvg * 2.8).toFixed(1);
 
-    // Últimos 5 goles marcados
+    // Goles marcados en últimos 5
     const last5Goals = fixtures.map(f => {
       const isHome = f.teams.home.id === teamId;
-      return isHome ? f.goals.home : f.goals.away;
-    }).filter(g => g !== null);
-
-    // Últimos 5 tarjetas
-    const last5Cards = fixtures.map(f => {
-      // API-Football no da tarjetas por equipo en /fixtures sin plan Pro
-      // Usamos promedio estimado
-      return stats.cards ? Math.round(
-        ((stats.cards.yellow?.['0-15']?.total||0) + (stats.cards.yellow?.['16-30']?.total||0) +
-         (stats.cards.yellow?.['31-45']?.total||0) + (stats.cards.yellow?.['46-60']?.total||0) +
-         (stats.cards.yellow?.['61-75']?.total||0) + (stats.cards.yellow?.['76-90']?.total||0)) / played
-      ) : 2;
+      return isHome ? (f.goals.home ?? 0) : (f.goals.away ?? 0);
     });
 
+    // Tarjetas en últimos 5 (estimado del promedio de temporada)
+    const yellowTotal = Object.values(stats.cards?.yellow || {}).reduce((s,v) => s + (v.total||0), 0);
+    const avgCards = played > 0 ? Math.round(yellowTotal / played) : 2;
+    const last5Cards = fixtures.map(() => avgCards);
+
     while(last5Goals.length < 5) last5Goals.unshift(Math.round(gfAvg));
-    while(last5Cards.length < 5) last5Cards.unshift(2);
+    while(last5Cards.length < 5) last5Cards.unshift(avgCards);
 
     // Aplicar al STATE
     if(side === 'local') {
@@ -993,7 +994,7 @@ async function autoLoadStats(side) {
     }
 
     applyStateToAllInputs();
-    const leagueName = leagues.find(l=>l.league.id===leagueId)?.league.name || '';
+    const leagueName = leagues.find(l => l.league.id === leagueId)?.league.name || '';
     setStatus(side, `✅ ${team.name} · ${leagueName} · ${played} partidos · ${gfAvg} goles/partido`, 'ok');
 
   } catch (err) {
