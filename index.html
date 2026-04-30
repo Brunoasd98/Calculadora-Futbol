@@ -291,15 +291,11 @@
       <div class="two-col">
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="tarj_nomL_label">Local</span></h4>
-                    <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgL" min="0" step="0.1" value="2.4" oninput="updateAvgTarjetas()"></div>
-          <div class="fg"><label>Rival fuerza tarjetas</label><input type="number" id="tar_rivalL" min="0" step="0.1" value="2.1" oninput="updateAvgTarjetas()"></div>
-          <div class="avg-display">Estimado: <span id="avgTL">2.3</span></div>
+          <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgL" min="0" step="0.1" value="2.4"></div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="tarj_nomA_label">Visitante</span></h4>
-                    <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgA" min="0" step="0.1" value="2.6" oninput="updateAvgTarjetas()"></div>
-          <div class="fg"><label>Rival fuerza tarjetas</label><input type="number" id="tar_rivalA" min="0" step="0.1" value="2.3" oninput="updateAvgTarjetas()"></div>
-          <div class="avg-display">Estimado: <span id="avgTA">2.5</span></div>
+          <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgA" min="0" step="0.1" value="2.6"></div>
         </div>
       </div>
       <button class="calc-btn" onclick="calcTarjetas()">Calcular Tarjetas</button>
@@ -1179,17 +1175,12 @@ function calcGoles(){
   const golesVerdict=makeVerdictCard(vc,golesIcon,golesKicker,vt,golesNote,'Over 2.5',o25.toFixed(1)+'%');
   showRes('res-goles',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),extra,golesVerdict));
 }
-function updateAvgTarjetas(){
-  const lL=clamp(fv('tar_avgL')*.72+fv('tar_rivalL')*.28,0,8);
-  const lA=clamp(fv('tar_avgA')*.72+fv('tar_rivalA')*.28,0,8);
-  document.getElementById('avgTL').textContent=lL.toFixed(1);
-  document.getElementById('avgTA').textContent=lA.toFixed(1);
-}
-document.querySelectorAll('#tar_avgL,#tar_rivalL,#tar_avgA,#tar_rivalA').forEach(i=>i.addEventListener('input',updateAvgTarjetas));
+function updateAvgTarjetas(){}
+document.querySelectorAll('#tar_avgL,#tar_avgA').forEach(i=>i.addEventListener('input',updateAvgTarjetas));
 
 function calcTarjetas(){
-  const lL=clamp(fv('tar_avgL')*.72+fv('tar_rivalL')*.28,.05,8);
-  const lA=clamp(fv('tar_avgA')*.72+fv('tar_rivalA')*.28,.05,8);
+  const lL=clamp(fv('tar_avgL'),.05,8);
+  const lA=clamp(fv('tar_avgA'),.05,8);
   const lT=lL+lA;
   const rL=[],rA=[],rT=[];let mL=0,mA=0,mT=0;
   for(let k=0;k<=5;k++){
