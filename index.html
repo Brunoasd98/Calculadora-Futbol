@@ -130,6 +130,24 @@
   .total-bars{margin-top:16px;background:rgba(8,18,28,.7);border:1px solid rgba(30,45,61,.8);border-radius:10px;padding:12px;}
   .total-bars h5{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:#6f91ac;margin-bottom:10px;}
   .verdict.match-verdict{margin-top:18px;}
+  .btts-verdict-card{margin-top:20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 18px;border-radius:12px;background:linear-gradient(135deg,rgba(10,20,30,.96),rgba(9,15,22,.98));border:1px solid rgba(95,145,187,.42);box-shadow:0 16px 40px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.03);}
+  .btts-verdict-card.yes{border-color:rgba(0,229,160,.46);background:linear-gradient(135deg,rgba(0,229,160,.13),rgba(9,15,22,.98));}
+  .btts-verdict-card.maybe{border-color:rgba(255,193,7,.46);background:linear-gradient(135deg,rgba(255,193,7,.14),rgba(9,15,22,.98));}
+  .btts-verdict-card.no{border-color:rgba(255,58,92,.46);background:linear-gradient(135deg,rgba(255,58,92,.13),rgba(9,15,22,.98));}
+  .btts-icon{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1px;color:#001018;background:var(--accent);box-shadow:0 0 26px rgba(0,229,160,.22);}
+  .btts-verdict-card.maybe .btts-icon{background:var(--yellow);}
+  .btts-verdict-card.no .btts-icon{background:var(--red);color:#fff;}
+  .btts-kicker{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#6f91ac;margin-bottom:3px;}
+  .btts-title{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1.6px;line-height:1;color:#f4f8fb;}
+  .btts-note{font-size:.78rem;color:#8aa7bd;margin-top:5px;}
+  .btts-score{text-align:right;min-width:90px;}
+  .btts-score span{font-size:.65rem;color:#6f91ac;text-transform:uppercase;letter-spacing:1px;}
+  .btts-score strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:var(--accent);letter-spacing:1px;}
+  .btts-verdict-card.maybe .btts-score strong{color:var(--yellow);}
+  .btts-verdict-card.no .btts-score strong{color:var(--red);}
+  .btts-meter{grid-column:1/-1;height:9px;border-radius:999px;background:#07131d;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);}
+  .btts-meter-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--yellow),var(--accent));transition:width .6s ease;}
+  @media(max-width:620px){.btts-verdict-card{grid-template-columns:auto 1fr}.btts-score{grid-column:1/-1;text-align:left}.btts-meter{grid-column:1/-1}}
   @media(max-width:760px){.team-result-grid,.market-panels{grid-template-columns:1fr;}.match-result{padding:14px}.team-title{font-size:2.2rem}.crest-wrap{width:90px;height:102px}.metric-strip{grid-template-columns:repeat(2,minmax(0,1fr));}}
   .winner-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
   .wrow{display:flex;align-items:center;gap:10px;}
@@ -593,7 +611,56 @@ const TEAMS_RAW = [
   {n:"Deportivo Cuenca",l:"Copa Sudamericana",c:"Ecuador"},
   {n:"Aucas",l:"Copa Sudamericana",c:"Ecuador"},
   {n:"Cerro Largo",l:"Copa Sudamericana",c:"Uruguay"},
-  {n:"Metropolitanos",l:"Copa Sudamericana",c:"Venezuela"},];
+  {n:"Metropolitanos",l:"Copa Sudamericana",c:"Venezuela"},
+  // Mundial 2026 - Selecciones clasificadas
+  {n:"México",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},
+  {n:"Sudáfrica",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Corea del Sur",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"República Checa",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Canadá",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},
+  {n:"Bosnia y Herzegovina",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Qatar",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Suiza",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Brasil",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Marruecos",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Haití",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},
+  {n:"Escocia",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Estados Unidos",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},
+  {n:"Paraguay",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Australia",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Turquía",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Alemania",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Curazao",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},
+  {n:"Costa de Marfil",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Ecuador",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Países Bajos",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Japón",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Suecia",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Túnez",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Bélgica",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Egipto",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Irán",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Nueva Zelanda",l:"Mundial 2026 · Selecciones",c:"OFC"},
+  {n:"España",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Cabo Verde",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Arabia Saudita",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Uruguay",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Francia",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Senegal",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Irak",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Noruega",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Argentina",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Argelia",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Austria",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Jordania",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Portugal",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Congo DR",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Uzbekistán",l:"Mundial 2026 · Selecciones",c:"AFC"},
+  {n:"Colombia",l:"Mundial 2026 · Selecciones",c:"CONMEBOL"},
+  {n:"Inglaterra",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Croacia",l:"Mundial 2026 · Selecciones",c:"UEFA"},
+  {n:"Ghana",l:"Mundial 2026 · Selecciones",c:"CAF"},
+  {n:"Panamá",l:"Mundial 2026 · Selecciones",c:"CONCACAF"},];
 
 // Deduplicar por nombre
 const TEAMS = (function(){
@@ -774,6 +841,119 @@ function calcUnder(lam,ts){const v={};ts.forEach(t=>v[t]=0);for(let k=0;k<=30;k+
 function teamInitials(name){return (name||'FC').replace(/\b(club|fc|cf|ac|sc|de|del|la|el|the)\b/gi,'').trim().split(/\s+/).slice(0,3).map(w=>w[0]).join('').toUpperCase()||'FC';}
 function escapeAttr(s){return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function barColor(idx,max){const hue=350+(145-350)*(idx/Math.max(1,max));return `hsl(${hue},82%,54%)`;}
+const PALADAR_CREST_FILES = {
+  "México":"mexico.png",
+  "Sudáfrica":"sudafrica.png",
+  "Corea del Sur":"coreadelsur.png",
+  "República Checa":"republicacheca.png",
+  "Canadá":"canada.png",
+  "Bosnia y Herzegovina":"bosnia.png",
+  "Qatar":"qatar.png",
+  "Suiza":"suiza.png",
+  "Brasil":"brasil.png",
+  "Marruecos":"marruecos.png",
+  "Haití":"haiti.png",
+  "Escocia":"escocia.png",
+  "Estados Unidos":"usa.png",
+  "USA":"usa.png",
+  "Paraguay":"paraguay.png",
+  "Australia":"australia.png",
+  "Turquía":"turquia.png",
+  "Alemania":"alemania.png",
+  "Curazao":"curazao.png",
+  "Costa de Marfil":"costa_de_marfil.png",
+  "Ecuador":"ecuador.png",
+  "Países Bajos":"paisesbajos.png",
+  "Japón":"japon.png",
+  "Suecia":"suecia.png",
+  "Túnez":"tunez.png",
+  "Bélgica":"belgica.png",
+  "Egipto":"egipto.png",
+  "Irán":"iran.png",
+  "Nueva Zelanda":"nuevazelanda.png",
+  "España":"espana.png",
+  "Cabo Verde":"cabo_verde.png",
+  "Arabia Saudita":"arabiasaudita.png",
+  "Uruguay":"uruguay.png",
+  "Francia":"francia.png",
+  "Senegal":"senegal.png",
+  "Irak":"irak.png",
+  "Noruega":"noruega.png",
+  "Argentina":"argentina.png",
+  "Argelia":"argelia.png",
+  "Austria":"austria.png",
+  "Jordania":"jordania.png",
+  "Portugal":"portugal.png",
+  "Congo DR":"congo.png",
+  "República Democrática del Congo":"congo.png",
+  "Uzbekistán":"uzbekistan.png",
+  "Colombia":"colombia.png",
+  "Inglaterra":"inglaterra.png",
+  "Croacia":"croacia.png",
+  "Ghana":"ghana.png",
+  "Panamá":"panama.png"
+};
+function paladarCrestUrl(name){
+  const file = PALADAR_CREST_FILES[name];
+  return file ? `https://paladarnegro.net/escudoteca/selecciones/selecciones/png/${file}` : '';
+}
+const PALADAR_CLUB_CREST_URLS = {
+  "Barcelona":"https://paladarnegro.net/escudoteca/espana/laliga/png/barcelona.png",
+  "Real Madrid":"https://paladarnegro.net/escudoteca/espana/laliga/png/realmadrid.png",
+  "Atlético de Madrid":"https://paladarnegro.net/escudoteca/espana/laliga/png/atlmadrid.png",
+  "Athletic Club":"https://paladarnegro.net/escudoteca/espana/laliga/png/athletic.png",
+  "Real Betis":"https://paladarnegro.net/escudoteca/espana/laliga/png/betis.png",
+  "Celta Vigo":"https://paladarnegro.net/escudoteca/espana/laliga/png/celta.png",
+  "Espanyol":"https://paladarnegro.net/escudoteca/espana/laliga/png/espanyol.png",
+  "Getafe":"https://paladarnegro.net/escudoteca/espana/laliga/png/getafe.png",
+  "Girona":"https://paladarnegro.net/escudoteca/espana/laliga/png/girona.png",
+  "Mallorca":"https://paladarnegro.net/escudoteca/espana/laliga/png/mallorca.png",
+  "Osasuna":"https://paladarnegro.net/escudoteca/espana/laliga/png/osasuna.png",
+  "Rayo Vallecano":"https://paladarnegro.net/escudoteca/espana/laliga/png/rayovallecano.png",
+  "Real Sociedad":"https://paladarnegro.net/escudoteca/espana/laliga/png/realsociedad.png",
+  "Sevilla":"https://paladarnegro.net/escudoteca/espana/laliga/png/sevilla.png",
+  "Valencia":"https://paladarnegro.net/escudoteca/espana/laliga/png/valencia.png",
+  "Villarreal":"https://paladarnegro.net/escudoteca/espana/laliga/png/villarreal.png",
+  "Boca Juniors":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/boca.png",
+  "River Plate":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/river.png",
+  "Racing Club":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/racing.png",
+  "Independiente":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/independiente.png",
+  "San Lorenzo":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/sanlorenzo.png",
+  "Vélez Sársfield":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/velez.png",
+  "Estudiantes":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/estudiantes.png",
+  "Rosario Central":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/rosariocentral.png",
+  "Lanús":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/lanus.png",
+  "Talleres":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/talleres.png",
+  "Huracán":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/huracan.png",
+  "Manchester City":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/manchestercity.png",
+  "Manchester United":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/manchesterunited.png",
+  "Liverpool":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/liverpool.png",
+  "Arsenal":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/arsenal.png",
+  "Chelsea":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/chelsea.png",
+  "Tottenham Hotspur":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/tottenham.png",
+  "Aston Villa":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/astonvilla.png",
+  "Newcastle United":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/newcastle.png",
+  "Nottingham Forest":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/nottingham_forest.png",
+  "West Ham United":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/westham.png",
+  "Brighton":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/brighton.png",
+  "Crystal Palace":"https://paladarnegro.net/escudoteca/inglaterra/premier/png/crystalpalace.png",
+  "Inter Milan":"https://paladarnegro.net/escudoteca/italia/seriea/png/inter.png",
+  "AC Milan":"https://paladarnegro.net/escudoteca/italia/seriea/png/milan.png",
+  "Juventus":"https://paladarnegro.net/escudoteca/italia/seriea/png/juventus.png",
+  "Napoli":"https://paladarnegro.net/escudoteca/italia/seriea/png/napoli.png",
+  "Roma":"https://paladarnegro.net/escudoteca/italia/seriea/png/roma.png",
+  "Lazio":"https://paladarnegro.net/escudoteca/italia/seriea/png/lazio.png",
+  "Atalanta":"https://paladarnegro.net/escudoteca/italia/seriea/png/atalanta.png",
+  "Bologna":"https://paladarnegro.net/escudoteca/italia/seriea/png/bologna.png",
+  "Fiorentina":"https://paladarnegro.net/escudoteca/italia/seriea/png/fiorentina.png",
+  "Torino":"https://paladarnegro.net/escudoteca/italia/seriea/png/torino.png",
+  "Udinese":"https://paladarnegro.net/escudoteca/italia/seriea/png/udinese.png"
+};
+function paladarClubCrestUrl(name){return PALADAR_CLUB_CREST_URLS[name] || '';}
+const CUSTOM_CREST_URLS = {
+  // Pegá acá URLs directas de imágenes si querés forzar un escudo.
+  // Ejemplo: "Barcelona":"https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+};
 const CREST_FILES = {
   "Boca Juniors":"Boca Juniors logo18.svg",
   "River Plate":"Club Atlético River Plate logo.svg",
@@ -814,7 +994,7 @@ const CREST_FILES = {
   "Lanús":"Escudo del Club Atlético Lanús.svg"
 };
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function crestUrl(name){const file=CREST_FILES[name];return file?`https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=240`:'';}
+function crestUrl(name){if(CUSTOM_CREST_URLS[name]) return CUSTOM_CREST_URLS[name]; const pn=paladarCrestUrl(name); if(pn) return pn; const pc=paladarClubCrestUrl(name); if(pc) return pc; const file=CREST_FILES[name]; return file?`https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=240`:'';}
 const WIKI_TITLES = {
   "Boca Juniors":"Boca Juniors",
   "River Plate":"Club Atlético River Plate",
@@ -889,6 +1069,14 @@ function makeTeamPanel(name,rows,maxP,side,title){
   return `<section class="team-result-card ${side}"><div class="team-hero">${crestHTML(name,side)}<div class="team-title">${esc(name)}</div><div class="team-sub">${title}</div></div><div class="team-bars">${bars}</div></section>`;
 }
 function makeMatchLayout(metrics,left,right,extra,verdict){return `<div class="match-result">${makeMetricStrip(metrics)}<div class="team-result-grid">${left}${right}</div>${extra||''}${verdict||''}</div>`;}
+function makeBTTSVerdict(prob){
+  const pct=prob*100;
+  const state=prob>=.55?'yes':prob>=.4?'maybe':'no';
+  const title=prob>=.55?'Ambos Anotan':prob>=.4?'BTTS Posible':'Sin Ambos Anotan';
+  const note=prob>=.55?'Los dos equipos tienen buena proyección de gol.':prob>=.4?'Hay señales mixtas, conviene mirar cuotas y contexto.':'La tendencia favorece que al menos uno quede sin convertir.';
+  const icon=prob>=.55?'SI':prob>=.4?'?':'NO';
+  return `<div class="btts-verdict-card ${state}"><div class="btts-icon">${icon}</div><div><div class="btts-kicker">Veredicto BTTS</div><div class="btts-title">${title}</div><div class="btts-note">${note}</div></div><div class="btts-score"><span>Probabilidad</span><strong>${pct.toFixed(1)}%</strong></div><div class="btts-meter"><div class="btts-meter-fill" style="width:${pct}%"></div></div></div>`;
+}
 function makeMarketPanels(overItems,underItems){return `<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5>${makeBars('',overItems,Math.max(...overItems.map(i=>i.p||i.v||0),1)).replace('<h5></h5>','')}</div><div class="market-panel"><h5>Probabilidades Under</h5>${makeBars('',underItems,Math.max(...underItems.map(i=>i.p||i.v||0),1)).replace('<h5></h5>','')}</div></div>`;}
 
 // ═══════════════════════════════════════════════════
@@ -920,14 +1108,12 @@ function calcBTTS(){
     if(pL>mL)mL=pL;if(pA>mA)mA=pA;
   }
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
-  const vc=pB>=.55?'v-green':pB>=.4?'v-yellow':'v-red';
-  const vt=pB>=.55?'BTTS - Ambos anotan':pB>=.4?'Posible BTTS':'Sin Ambos Anotan';
   const metrics=[
     {l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},
     {l:nomL+' anota',v:(pLA*100).toFixed(1)+'%'},{l:nomA+' anota',v:(pAA*100).toFixed(1)+'%'},
     {l:'BTTS Sí',v:(pB*100).toFixed(1)+'%'},{l:'BTTS No',v:(pN*100).toFixed(1)+'%'}
   ];
-  showRes('res-btts',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),'',`<div class="verdict match-verdict ${vc}">${vt}</div>`));
+  showRes('res-btts',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),'',makeBTTSVerdict(pB)));
 }
 function calcGoles(){
   const gfL=fv('g_gfL'),arcoL=fv('g_arcoL'),totL=fv('g_totL'),gcL=fv('g_gcL'),parL=fv('g_parL');
