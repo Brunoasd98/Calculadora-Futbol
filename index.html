@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -92,32 +92,45 @@
     font-size:.9rem;letter-spacing:1px;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .1s;}
   .calc-btn:hover{opacity:.9;transform:translateY(-1px);}
   .calc-btn:active{transform:translateY(0);}
-  .result-box{margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:none;}
+  .result-box{margin-top:14px;background:#0d151f;border:1px solid #203247;border-radius:12px;padding:18px;display:none;box-shadow:0 18px 50px rgba(0,0,0,.22) inset;}
   .result-box.on{display:block;}
-  .result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px;}
-  .rstat{background:var(--input-bg);border-radius:10px;padding:11px;text-align:center;}
-  .rstat .rl{font-size:.68rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
-  .rstat .rv{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:1px;color:var(--accent);}
-  .dist-section{margin-top:14px;}
-  .dist-section h5{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-  .dist-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
-  .dist-row .dk{width:90px;font-size:.77rem;color:var(--muted);flex-shrink:0;}
-  .bar-wrap{flex:1;height:8px;background:var(--input-bg);border-radius:4px;overflow:hidden;}
-  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s ease;}
-  .dist-row .dp{width:44px;text-align:right;font-size:.77rem;font-weight:600;color:var(--text);}
-  .over-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;margin-top:10px;}
-  .over-chip{background:var(--input-bg);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);}
-  .over-chip .ol{font-size:.7rem;color:var(--muted);}
-  .over-chip .ov{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;}
-  .over-chip.hi .ov{color:var(--accent);}
-  .over-chip.mi .ov{color:var(--yellow);}
-  .over-chip.lo .ov{color:var(--red);}
-  .verdict{margin-top:14px;padding:14px 18px;border-radius:12px;text-align:center;
-    font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:2px;}
-  .v-green{background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--accent);}
-  .v-blue{background:rgba(0,153,255,.1);border:1px solid rgba(0,153,255,.3);color:var(--accent2);}
-  .v-yellow{background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);color:var(--yellow);}
-  .v-red{background:rgba(255,58,92,.1);border:1px solid rgba(255,58,92,.3);color:var(--red);}
+  .match-result{border:1px solid rgba(72,118,155,.45);border-radius:12px;padding:18px;background:linear-gradient(180deg,rgba(10,18,27,.96),rgba(9,15,22,.98));}
+  .metric-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin-bottom:18px;}
+  .metric-card{background:rgba(8,18,28,.86);border:1px solid rgba(30,45,61,.7);border-radius:8px;padding:11px 8px;text-align:center;min-height:70px;display:flex;flex-direction:column;justify-content:center;}
+  .metric-card .ml{font-size:.64rem;color:#5f91bb;letter-spacing:1.2px;text-transform:uppercase;line-height:1.25;}
+  .metric-card .mv{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:var(--accent);letter-spacing:1px;line-height:1.05;margin-top:4px;}
+  .team-result-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:8px;}
+  .team-result-card{min-width:0;}
+  .team-hero{display:grid;justify-items:center;gap:8px;margin-bottom:14px;}
+  .crest-wrap{width:106px;height:118px;display:grid;place-items:center;position:relative;}
+  .crest-img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 14px 16px rgba(0,0,0,.35));}
+  .crest-fallback{width:86px;height:100px;display:grid;place-items:center;background:linear-gradient(160deg,rgba(0,229,160,.95),rgba(0,153,255,.88));color:#001018;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:1px;clip-path:polygon(50% 0,94% 18%,86% 78%,50% 100%,14% 78%,6% 18%);}
+  .team-result-card.away .crest-fallback{background:linear-gradient(160deg,rgba(0,153,255,.95),rgba(255,193,7,.9));}
+  .team-title{font-family:'Bebas Neue',sans-serif;text-align:center;font-size:clamp(2rem,5vw,3.1rem);line-height:.95;letter-spacing:1px;color:#f1f6fb;text-shadow:0 8px 22px rgba(0,0,0,.28);max-width:100%;overflow-wrap:anywhere;}
+  .team-sub{font-size:.65rem;text-transform:uppercase;letter-spacing:1.4px;color:#5f91bb;text-align:center;}
+  .team-bars{display:flex;flex-direction:column;gap:8px;}
+  .team-bar-row{display:grid;grid-template-columns:64px minmax(0,1fr) 46px;align-items:center;gap:10px;}
+  .team-bar-row .dk{font-size:.68rem;color:#6f91ac;white-space:nowrap;}
+  .team-bar-row .bar-wrap{height:8px;background:#0a1722;border-radius:5px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset;}
+  .team-bar-row .bar-fill{height:100%;display:block;min-width:3px;border-radius:5px;box-shadow:0 0 10px color-mix(in srgb,currentColor 35%,transparent);}
+  .market-panel .team-bar-row{grid-template-columns:minmax(118px,auto) minmax(0,1fr) 48px;}
+  .winner-result{border:1px solid rgba(72,118,155,.45);border-radius:12px;padding:18px;background:linear-gradient(180deg,rgba(10,18,27,.96),rgba(9,15,22,.98));}
+  .winner-stage{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin:10px 0 18px;}
+  .winner-team{display:grid;justify-items:center;gap:8px;min-width:0;}
+  .winner-vs{font-family:'Bebas Neue',sans-serif;color:#5f91bb;font-size:2rem;letter-spacing:2px;opacity:.8;}
+  .winner-bars.modern{background:rgba(8,18,28,.7);border:1px solid rgba(30,45,61,.8);border-radius:10px;padding:14px;}
+  .winner-bars.modern .wlabel{width:110px;color:#6f91ac;}
+  .winner-bars.modern .wwrap{height:24px;background:#0a1722;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset;}
+  .winner-bars.modern .wpct{color:#f4f8fb;text-shadow:0 1px 3px rgba(0,0,0,.45);}
+  @media(max-width:760px){.winner-stage{grid-template-columns:1fr;}.winner-vs{display:none}.winner-bars.modern .wlabel{width:82px}}
+  .team-bar-row .dp{font-size:.68rem;font-weight:700;text-align:right;color:#f4f8fb;}
+  .market-panels{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+  .market-panel{background:rgba(8,18,28,.7);border:1px solid rgba(30,45,61,.8);border-radius:10px;padding:12px;}
+  .market-panel h5{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:#6f91ac;margin-bottom:10px;}
+  .total-bars{margin-top:16px;background:rgba(8,18,28,.7);border:1px solid rgba(30,45,61,.8);border-radius:10px;padding:12px;}
+  .total-bars h5{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:#6f91ac;margin-bottom:10px;}
+  .verdict.match-verdict{margin-top:18px;}
+  @media(max-width:760px){.team-result-grid,.market-panels{grid-template-columns:1fr;}.match-result{padding:14px}.team-title{font-size:2.2rem}.crest-wrap{width:90px;height:102px}.metric-strip{grid-template-columns:repeat(2,minmax(0,1fr));}}
   .winner-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
   .wrow{display:flex;align-items:center;gap:10px;}
   .wlabel{width:90px;font-size:.78rem;color:var(--muted);flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -127,6 +140,11 @@
   .wf-d{background:linear-gradient(90deg,var(--yellow),rgba(255,193,7,.4));}
   .wf-a{background:linear-gradient(90deg,var(--accent2),rgba(0,153,255,.4));}
   .wpct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.78rem;font-weight:700;color:rgba(0,0,0,.75);}
+  .team-badge{width:34px;height:38px;display:grid;place-items:center;flex-shrink:0;background:linear-gradient(160deg,rgba(0,229,160,.95),rgba(0,153,255,.85));color:#001018;font-size:.62rem;font-weight:800;letter-spacing:.4px;clip-path:polygon(50% 0,94% 18%,86% 78%,50% 100%,14% 78%,6% 18%);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset;}
+  .team-badge.away{background:linear-gradient(160deg,rgba(0,153,255,.95),rgba(255,193,7,.88));}
+  .drop-item .team-badge{width:28px;height:32px;font-size:.56rem;}
+  .sel-card .team-badge{width:30px;height:34px;font-size:.58rem;}
+  .team-badge img{max-width:86%;max-height:86%;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));}
 </style>
 </head>
 <body>
@@ -148,6 +166,7 @@
         </div>
         <div class="dropdown" id="dropLocal"></div>
         <div class="sel-card" id="selLocal">
+          <div class="team-badge" id="selLocalBadge">LOC</div>
           <div><div class="sn" id="selLocalName"></div><div class="sl" id="selLocalLeague"></div></div>
           <button class="clr" onclick="clearTeam('local')">✕</button>
         </div>
@@ -160,6 +179,7 @@
         </div>
         <div class="dropdown" id="dropAway"></div>
         <div class="sel-card" id="selAway">
+          <div class="team-badge away" id="selAwayBadge">VIS</div>
           <div><div class="sn" id="selAwayName"></div><div class="sl" id="selAwayLeague"></div></div>
           <button class="clr" onclick="clearTeam('away')">✕</button>
         </div>
@@ -227,29 +247,19 @@
   <!-- TARJETAS -->
   <div id="panel-tarjetas" class="panel">
     <div class="panel-card">
-      <h3>Tarjetas — Últimos 5 partidos</h3>
+      <h3>Tarjetas - datos simples</h3>
       <div class="two-col">
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="tarj_nomL_label">Local</span></h4>
-          <div class="match-rows">
-            <div class="match-row"><span>Partido 1</span><input type="number" class="tL" id="tL1" min="0" step="1" value="2"></div>
-            <div class="match-row"><span>Partido 2</span><input type="number" class="tL" id="tL2" min="0" step="1" value="3"></div>
-            <div class="match-row"><span>Partido 3</span><input type="number" class="tL" id="tL3" min="0" step="1" value="1"></div>
-            <div class="match-row"><span>Partido 4</span><input type="number" class="tL" id="tL4" min="0" step="1" value="4"></div>
-            <div class="match-row"><span>Partido 5</span><input type="number" class="tL" id="tL5" min="0" step="1" value="2"></div>
-          </div>
-          <div class="avg-display">Promedio: <span id="avgTL">2.4</span></div>
+                    <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgL" min="0" step="0.1" value="2.4" oninput="updateAvgTarjetas()"></div>
+          <div class="fg"><label>Rival fuerza tarjetas</label><input type="number" id="tar_rivalL" min="0" step="0.1" value="2.1" oninput="updateAvgTarjetas()"></div>
+          <div class="avg-display">Estimado: <span id="avgTL">2.3</span></div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="tarj_nomA_label">Visitante</span></h4>
-          <div class="match-rows">
-            <div class="match-row"><span>Partido 1</span><input type="number" class="tA" id="tA1" min="0" step="1" value="3"></div>
-            <div class="match-row"><span>Partido 2</span><input type="number" class="tA" id="tA2" min="0" step="1" value="2"></div>
-            <div class="match-row"><span>Partido 3</span><input type="number" class="tA" id="tA3" min="0" step="1" value="4"></div>
-            <div class="match-row"><span>Partido 4</span><input type="number" class="tA" id="tA4" min="0" step="1" value="1"></div>
-            <div class="match-row"><span>Partido 5</span><input type="number" class="tA" id="tA5" min="0" step="1" value="3"></div>
-          </div>
-          <div class="avg-display">Promedio: <span id="avgTA">2.6</span></div>
+                    <div class="fg"><label>Prom. tarjetas por partido</label><input type="number" id="tar_avgA" min="0" step="0.1" value="2.6" oninput="updateAvgTarjetas()"></div>
+          <div class="fg"><label>Rival fuerza tarjetas</label><input type="number" id="tar_rivalA" min="0" step="0.1" value="2.3" oninput="updateAvgTarjetas()"></div>
+          <div class="avg-display">Estimado: <span id="avgTA">2.5</span></div>
         </div>
       </div>
       <button class="calc-btn" onclick="calcTarjetas()">Calcular Tarjetas</button>
@@ -268,34 +278,16 @@
           <div class="fg"><label>Prom. goles en contra</label><input type="number" id="gan_gcL" step="0.01" value="1.03" oninput="syncFrom('gcL',this.value)"></div>
           <div class="fg"><label>Posesión promedio (%)</label><input type="number" id="gan_posL" step="0.1" value="52" oninput="syncFrom('posL',this.value)"></div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="gan_dispL" step="0.01" value="5.3" oninput="syncFrom('arcoL',this.value)"></div>
-          <div style="margin-top:10px">
-            <div style="font-size:.7rem;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Goles marcados últimos 5</div>
-            <div class="match-rows">
-              <div class="match-row"><span>P1</span><input type="number" class="gL" id="gL1" min="0" step="1" value="2"></div>
-              <div class="match-row"><span>P2</span><input type="number" class="gL" id="gL2" min="0" step="1" value="1"></div>
-              <div class="match-row"><span>P3</span><input type="number" class="gL" id="gL3" min="0" step="1" value="3"></div>
-              <div class="match-row"><span>P4</span><input type="number" class="gL" id="gL4" min="0" step="1" value="0"></div>
-              <div class="match-row"><span>P5</span><input type="number" class="gL" id="gL5" min="0" step="1" value="2"></div>
-            </div>
-          </div>
-        </div>
+                    <div class="fg"><label>Prom. goles recientes</label><input type="number" id="gan_recentL" min="0" step="0.01" value="1.60"></div>
+          <div class="fg"><label>Puntos por partido recientes</label><input type="number" id="gan_ptsL" min="0" max="3" step="0.1" value="1.8"></div>        </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="gan_nomA_label">Visitante</span></h4>
           <div class="fg"><label>Prom. goles a favor</label><input type="number" id="gan_gfA" step="0.01" value="0.85" oninput="syncFrom('gfA',this.value)"></div>
           <div class="fg"><label>Prom. goles en contra</label><input type="number" id="gan_gcA" step="0.01" value="1.33" oninput="syncFrom('gcA',this.value)"></div>
           <div class="fg"><label>Posesión promedio (%)</label><input type="number" id="gan_posA" step="0.1" value="48" oninput="syncFrom('posA',this.value)"></div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="gan_dispA" step="0.01" value="4.1" oninput="syncFrom('arcoA',this.value)"></div>
-          <div style="margin-top:10px">
-            <div style="font-size:.7rem;color:var(--muted);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Goles marcados últimos 5</div>
-            <div class="match-rows">
-              <div class="match-row"><span>P1</span><input type="number" class="gA" id="gA1" min="0" step="1" value="1"></div>
-              <div class="match-row"><span>P2</span><input type="number" class="gA" id="gA2" min="0" step="1" value="0"></div>
-              <div class="match-row"><span>P3</span><input type="number" class="gA" id="gA3" min="0" step="1" value="2"></div>
-              <div class="match-row"><span>P4</span><input type="number" class="gA" id="gA4" min="0" step="1" value="1"></div>
-              <div class="match-row"><span>P5</span><input type="number" class="gA" id="gA5" min="0" step="1" value="1"></div>
-            </div>
-          </div>
-        </div>
+                    <div class="fg"><label>Prom. goles recientes</label><input type="number" id="gan_recentA" min="0" step="0.01" value="1.00"></div>
+          <div class="fg"><label>Puntos por partido recientes</label><input type="number" id="gan_ptsA" min="0" max="3" step="0.1" value="1.2"></div>        </div>
       </div>
       <button class="calc-btn" onclick="calcGanador()">Calcular Ganador</button>
     </div>
@@ -529,7 +521,79 @@ const TEAMS_RAW = [
   {n:"San Martín de Tucumán",l:"Liga Argentina",c:"Argentina"},
   {n:"Quilmes",l:"Liga Argentina",c:"Argentina"},
   {n:"Ferro Carril Oeste",l:"Liga Argentina",c:"Argentina"},
-];
+  // Champions League 2025/26 adicionales verificados
+  {n:"Tottenham Hotspur",l:"Champions · Premier League",c:"Inglaterra"},
+  {n:"Newcastle United",l:"Champions · Premier League",c:"Inglaterra"},
+  {n:"Napoli",l:"Champions · Serie A",c:"Italia"},
+  {n:"Athletic Club",l:"Champions · La Liga",c:"España"},
+  {n:"Eintracht Frankfurt",l:"Champions · Bundesliga",c:"Alemania"},
+  {n:"Union Saint-Gilloise",l:"Champions League",c:"Bélgica"},
+  {n:"Copenhagen",l:"Champions League",c:"Dinamarca"},
+  {n:"Kairat Almaty",l:"Champions League",c:"Kazajistán"},
+  {n:"Bodo/Glimt",l:"Champions League",c:"Noruega"},
+  {n:"Pafos",l:"Champions League",c:"Chipre"},
+  // Europa League 2025/26 adicionales
+  {n:"Aston Villa",l:"Europa League · Premier League",c:"Inglaterra"},
+  {n:"Nottingham Forest",l:"Europa League · Premier League",c:"Inglaterra"},
+  {n:"Celta Vigo",l:"Europa League · La Liga",c:"España"},
+  {n:"Real Betis",l:"Europa League · La Liga",c:"España"},
+  {n:"Freiburg",l:"Europa League · Bundesliga",c:"Alemania"},
+  {n:"Genk",l:"Europa League",c:"Bélgica"},
+  {n:"Ferencvaros",l:"Europa League",c:"Hungría"},
+  {n:"Midtjylland",l:"Europa League",c:"Dinamarca"},
+  {n:"Panathinaikos",l:"Europa League",c:"Grecia"},
+  {n:"Brann",l:"Europa League",c:"Noruega"},
+  {n:"Ludogorets",l:"Europa League",c:"Bulgaria"},
+  {n:"Basel",l:"Europa League",c:"Suiza"},
+  {n:"Go Ahead Eagles",l:"Europa League",c:"Países Bajos"},
+  {n:"Malmo",l:"Europa League",c:"Suecia"},
+  // Conference League 2025/26
+  {n:"Aberdeen",l:"Conference League",c:"Escocia"},
+  {n:"AEK Athens",l:"Conference League",c:"Grecia"},
+  {n:"AEK Larnaca",l:"Conference League",c:"Chipre"},
+  {n:"Breidablik",l:"Conference League",c:"Islandia"},
+  {n:"Celje",l:"Conference League",c:"Eslovenia"},
+  {n:"Crystal Palace",l:"Conference League · Premier League",c:"Inglaterra"},
+  {n:"Drita",l:"Conference League",c:"Kosovo"},
+  {n:"Fiorentina",l:"Conference League · Serie A",c:"Italia"},
+  {n:"Hacken",l:"Conference League",c:"Suecia"},
+  {n:"Hamrun Spartans",l:"Conference League",c:"Malta"},
+  {n:"Jagiellonia Bialystok",l:"Conference League",c:"Polonia"},
+  {n:"KuPS Kuopio",l:"Conference League",c:"Finlandia"},
+  {n:"Lausanne-Sport",l:"Conference League",c:"Suiza"},
+  {n:"Lech Poznan",l:"Conference League",c:"Polonia"},
+  {n:"Legia Warszawa",l:"Conference League",c:"Polonia"},
+  {n:"Lincoln Red Imps",l:"Conference League",c:"Gibraltar"},
+  {n:"Mainz",l:"Conference League · Bundesliga",c:"Alemania"},
+  {n:"Noah",l:"Conference League",c:"Armenia"},
+  {n:"Omonoia",l:"Conference League",c:"Chipre"},
+  {n:"Rakow",l:"Conference League",c:"Polonia"},
+  {n:"Rapid Wien",l:"Conference League",c:"Austria"},
+  {n:"Rijeka",l:"Conference League",c:"Croacia"},
+  {n:"Samsunspor",l:"Conference League",c:"Turquía"},
+  {n:"Shelbourne",l:"Conference League",c:"Irlanda"},
+  {n:"Shkendija",l:"Conference League",c:"Macedonia del Norte"},
+  {n:"Sigma Olomouc",l:"Conference League",c:"República Checa"},
+  {n:"Slovan Bratislava",l:"Conference League",c:"Eslovaquia"},
+  {n:"Strasbourg",l:"Conference League · Ligue 1",c:"Francia"},
+  {n:"Universitatea Craiova",l:"Conference League",c:"Rumania"},
+  {n:"Zrinjski",l:"Conference League",c:"Bosnia y Herzegovina"},
+  // Copa Libertadores / Sudamericana 2026 adicionales
+  {n:"Platense",l:"Libertadores · Liga Argentina",c:"Argentina"},
+  {n:"Santa Fe",l:"Copa Libertadores",c:"Colombia"},
+  {n:"Deportes Tolima",l:"Copa Libertadores",c:"Colombia"},
+  {n:"Independiente Medellin",l:"Copa Libertadores",c:"Colombia"},
+  {n:"Universidad Central",l:"Copa Libertadores",c:"Venezuela"},
+  {n:"Sporting Cristal",l:"Copa Libertadores",c:"Perú"},
+  {n:"Cienciano",l:"Copa Sudamericana",c:"Perú"},
+  {n:"Always Ready",l:"Copa Sudamericana",c:"Bolivia"},
+  {n:"Nacional Potosi",l:"Copa Sudamericana",c:"Bolivia"},
+  {n:"Coquimbo Unido",l:"Copa Sudamericana",c:"Chile"},
+  {n:"Union La Calera",l:"Copa Sudamericana",c:"Chile"},
+  {n:"Deportivo Cuenca",l:"Copa Sudamericana",c:"Ecuador"},
+  {n:"Aucas",l:"Copa Sudamericana",c:"Ecuador"},
+  {n:"Cerro Largo",l:"Copa Sudamericana",c:"Uruguay"},
+  {n:"Metropolitanos",l:"Copa Sudamericana",c:"Venezuela"},];
 
 // Deduplicar por nombre
 const TEAMS = (function(){
@@ -652,14 +716,16 @@ function renderDD(teams, side) {
     drop.innerHTML = `<div class="drop-no">Sin resultados. Probá con otro nombre.</div>`;
   } else {
     drop.innerHTML = teams.map(t => {
-      const name = t.n.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-      const league = t.l.replace(/'/g,'&#39;');
+      const name = escapeAttr(t.n);
+      const league = escapeAttr(t.l);
+      const initials = teamInitials(t.n);
       return `<div class="drop-item" onclick='selectTeam("${name}","${league}","${side}")'>
-        <div><div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div></div>
+        ${miniCrestHTML(t.n,side)}<div><div class="dn">${t.n}</div><div class="dl">${t.l} · ${t.c}</div></div>
       </div>`;
     }).join('');
   }
   drop.classList.add('open');
+  hydrateCrests(drop);
 }
 
 function closeDD(side){ document.getElementById('drop'+cap(side)).classList.remove('open'); }
@@ -670,6 +736,12 @@ function selectTeam(name, league, side) {
   document.getElementById('sel'+cap(side)+'Name').textContent = name;
   document.getElementById('sel'+cap(side)+'League').textContent = league;
   document.getElementById('sel'+cap(side)).classList.add('on');
+  const badge = document.getElementById('sel'+cap(side)+'Badge');
+  if(badge){
+    const url = crestUrl(name), initials = teamInitials(name);
+    badge.innerHTML = `<img src="${url||''}" data-team-crest="${esc(name)}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='${initials}';">`;
+    hydrateCrests(badge);
+  }
   if(side==='local') STATE.nomL = name; else STATE.nomA = name;
   updateLabels();
 }
@@ -697,20 +769,141 @@ function factorial(n){if(n<=1)return 1;let r=1;for(let i=2;i<=n;i++)r*=i;return 
 function poisson(k,lam){return Math.exp(-lam)*Math.pow(lam,k)/factorial(k);}
 function fv(id){return parseFloat(document.getElementById(id).value)||0;}
 function calcOver(lam,ts){const v={};ts.forEach(t=>v[t]=0);for(let k=0;k<=30;k++){const p=poisson(k,lam);ts.forEach(t=>{if(k>t)v[t]+=p;});}return v;}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+function calcUnder(lam,ts){const v={};ts.forEach(t=>v[t]=0);for(let k=0;k<=30;k++){const p=poisson(k,lam);ts.forEach(t=>{if(k<t)v[t]+=p;});}return v;}
+function teamInitials(name){return (name||'FC').replace(/\b(club|fc|cf|ac|sc|de|del|la|el|the)\b/gi,'').trim().split(/\s+/).slice(0,3).map(w=>w[0]).join('').toUpperCase()||'FC';}
+function escapeAttr(s){return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function barColor(idx,max){const hue=350+(145-350)*(idx/Math.max(1,max));return `hsl(${hue},82%,54%)`;}
+const CREST_FILES = {
+  "Boca Juniors":"Boca Juniors logo18.svg",
+  "River Plate":"Club Atlético River Plate logo.svg",
+  "Barcelona":"FC Barcelona (crest).svg",
+  "Real Madrid":"Real Madrid CF (ancien logo).svg",
+  "Atlético de Madrid":"Atletico Madrid logo.svg",
+  "Manchester City":"Manchester City FC badge.svg",
+  "Manchester United":"Manchester United FC crest.svg",
+  "Liverpool":"Liverpool FC.svg",
+  "Arsenal":"Arsenal FC.svg",
+  "Chelsea":"Chelsea FC.svg",
+  "Tottenham Hotspur":"Tottenham Hotspur.svg",
+  "Inter Milan":"FC Internazionale Milano 2021.svg",
+  "AC Milan":"Logo of AC Milan.svg",
+  "Juventus":"Juventus FC - logo black (Italy, 2020).svg",
+  "Napoli":"SSC Napoli.svg",
+  "Roma":"AS Roma logo (2017).svg",
+  "Bayern Munich":"FC Bayern München logo (2017).svg",
+  "Borussia Dortmund":"Borussia Dortmund logo.svg",
+  "Bayer Leverkusen":"Bayer 04 Leverkusen logo.svg",
+  "Paris Saint-Germain":"Paris Saint-Germain F.C..svg",
+  "Benfica":"SL Benfica logo.svg",
+  "Porto":"FC Porto.svg",
+  "Sporting CP":"Sporting Clube de Portugal (Logo).svg",
+  "Ajax":"AFC Ajax.svg",
+  "PSV Eindhoven":"PSV Eindhoven.svg",
+  "Feyenoord":"Feyenoord logo.svg",
+  "Flamengo":"Flamengo braz logo.svg",
+  "Fluminense":"FFC crest.svg",
+  "Palmeiras":"Palmeiras logo.svg",
+  "São Paulo":"São Paulo Futebol Clube logo.svg",
+  "Racing Club":"Racing Club de Avellaneda logo.svg",
+  "Independiente":"Escudo del Club Atlético Independiente.svg",
+  "San Lorenzo":"Escudo del Club Atlético San Lorenzo de Almagro.svg",
+  "Vélez Sársfield":"Escudo Vélez Sarsfield.svg",
+  "Estudiantes":"Escudo del Club Estudiantes de La Plata.svg",
+  "Rosario Central":"Escudo del Club Atlético Rosario Central.svg",
+  "Lanús":"Escudo del Club Atlético Lanús.svg"
+};
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function crestUrl(name){const file=CREST_FILES[name];return file?`https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=240`:'';}
+const WIKI_TITLES = {
+  "Boca Juniors":"Boca Juniors",
+  "River Plate":"Club Atlético River Plate",
+  "Barcelona":"FC Barcelona",
+  "Real Madrid":"Real Madrid CF",
+  "Atlético de Madrid":"Atlético Madrid",
+  "Manchester City":"Manchester City F.C.",
+  "Manchester United":"Manchester United F.C.",
+  "Liverpool":"Liverpool F.C.",
+  "Arsenal":"Arsenal F.C.",
+  "Chelsea":"Chelsea F.C.",
+  "Tottenham Hotspur":"Tottenham Hotspur F.C.",
+  "Inter Milan":"Inter Milan",
+  "AC Milan":"AC Milan",
+  "Juventus":"Juventus FC",
+  "Napoli":"SSC Napoli",
+  "Roma":"AS Roma",
+  "Bayern Munich":"FC Bayern Munich",
+  "Borussia Dortmund":"Borussia Dortmund",
+  "Bayer Leverkusen":"Bayer 04 Leverkusen",
+  "Paris Saint-Germain":"Paris Saint-Germain FC",
+  "Benfica":"S.L. Benfica",
+  "Porto":"FC Porto",
+  "Sporting CP":"Sporting CP",
+  "Ajax":"AFC Ajax",
+  "PSV Eindhoven":"PSV Eindhoven",
+  "Feyenoord":"Feyenoord",
+  "Flamengo":"CR Flamengo",
+  "Fluminense":"Fluminense FC",
+  "Palmeiras":"SE Palmeiras",
+  "São Paulo":"São Paulo FC",
+  "Racing Club":"Racing Club de Avellaneda",
+  "Independiente":"Club Atlético Independiente",
+  "San Lorenzo":"San Lorenzo de Almagro",
+  "Vélez Sársfield":"Club Atlético Vélez Sarsfield",
+  "Estudiantes":"Estudiantes de La Plata",
+  "Rosario Central":"Rosario Central",
+  "Lanús":"Club Atlético Lanús"
+};
+const WIKI_CACHE = {};
+function wikiTitle(name){return WIKI_TITLES[name] || name;}
+function wikiSummaryUrl(name){return `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle(name))}`;}
+function hydrateCrests(root=document){
+  root.querySelectorAll('img[data-team-crest]').forEach(img=>{
+    const name=img.getAttribute('data-team-crest');
+    if(!name || img.dataset.hydrated==='1') return;
+    img.dataset.hydrated='1';
+    const apply=url=>{ if(url){ img.style.display=''; if(img.nextElementSibling) img.nextElementSibling.style.display='none'; img.src=url; } };
+    if(WIKI_CACHE[name]){ apply(WIKI_CACHE[name]); return; }
+    fetch(wikiSummaryUrl(name)).then(r=>r.ok?r.json():null).then(data=>{
+      const url=data?.thumbnail?.source || data?.originalimage?.source || '';
+      WIKI_CACHE[name]=url;
+      apply(url);
+    }).catch(()=>{});
+  });
+}
+function crestHTML(name,side='local'){
+  const initials=teamInitials(name);
+  const url=crestUrl(name);
+  const img=`<img class="crest-img" src="${url||''}" data-team-crest="${esc(name)}" alt="Escudo ${esc(name)}" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">`;
+  return `<div class="crest-wrap">${img}<div class="crest-fallback" style="${url?'display:none':''}">${initials}</div></div>`;
+}
+function miniCrestHTML(name,side='local'){
+  const initials=teamInitials(name);
+  const url=crestUrl(name);
+  if(!url) return `<div class="team-badge ${side==='away'?'away':''}">${initials}</div>`;
+  return `<div class="team-badge ${side==='away'?'away':''}"><img src="${url}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.textContent='${initials}';"></div>`;
+}
+function makeMetricStrip(items){return `<div class="metric-strip">${items.map(i=>`<div class="metric-card"><div class="ml">${i.l}</div><div class="mv">${i.v}</div></div>`).join('')}</div>`;}
+function makeTeamPanel(name,rows,maxP,side,title){
+  const bars=rows.map((r,idx)=>{const w=maxP>0?Math.min(100,(r.p/maxP)*100):0;const color=r.color||barColor(r.i??idx,r.max??Math.max(rows.length-1,1));return `<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${color}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`;}).join('');
+  return `<section class="team-result-card ${side}"><div class="team-hero">${crestHTML(name,side)}<div class="team-title">${esc(name)}</div><div class="team-sub">${title}</div></div><div class="team-bars">${bars}</div></section>`;
+}
+function makeMatchLayout(metrics,left,right,extra,verdict){return `<div class="match-result">${makeMetricStrip(metrics)}<div class="team-result-grid">${left}${right}</div>${extra||''}${verdict||''}</div>`;}
+function makeMarketPanels(overItems,underItems){return `<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5>${makeBars('',overItems,Math.max(...overItems.map(i=>i.p||i.v||0),1)).replace('<h5></h5>','')}</div><div class="market-panel"><h5>Probabilidades Under</h5>${makeBars('',underItems,Math.max(...underItems.map(i=>i.p||i.v||0),1)).replace('<h5></h5>','')}</div></div>`;}
 
 // ═══════════════════════════════════════════════════
 //  UI HELPERS
 // ═══════════════════════════════════════════════════
 function makeGrid(items){return`<div class="result-grid">${items.map(i=>`<div class="rstat"><div class="rl">${i.l}</div><div class="rv">${i.v}</div></div>`).join('')}</div>`;}
 function makeBars(title,rows,maxP){
-  const bars=rows.map(r=>{const w=maxP>0?Math.min(100,(r.p/maxP)*100):0;return`<div class="dist-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${w}%"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`;}).join('');
+  const bars=rows.map((r,idx)=>{const w=maxP>0?Math.min(100,(r.p/maxP)*100):0;const color=r.color||barColor(r.i??idx, r.max??Math.max(rows.length-1,1));return`<div class="dist-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${color}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`;}).join('');
   return`<div class="dist-section"><h5>${title}</h5>${bars}</div>`;
 }
-function makeOvers(items){
+function makeOvers(items,title="Probabilidades"){
   const chips=items.map(i=>{const cls=i.v>=65?'hi':i.v>=45?'mi':'lo';return`<div class="over-chip ${cls}"><div class="ol">${i.l}</div><div class="ov">${i.v.toFixed(1)}%</div></div>`;}).join('');
-  return`<div class="dist-section"><h5>Probabilidades Over</h5><div class="over-grid">${chips}</div></div>`;
+  return`<div class="dist-section"><h5>${title}</h5><div class="over-grid">${chips}</div></div>`;
 }
-function showRes(id,html){const el=document.getElementById(id);el.innerHTML=html;el.classList.add('on');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function showRes(id,html){const el=document.getElementById(id);el.innerHTML=html;el.classList.add('on');hydrateCrests(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});}
 
 // ═══════════════════════════════════════════════════
 //  CALCULATORS
@@ -721,101 +914,106 @@ function calcBTTS(){
   const pLA=1-poisson(0,lL),pAA=1-poisson(0,lA);
   const pB=pLA*pAA,pN=1-pB;
   const rL=[],rA=[];let mL=0,mA=0;
-  for(let k=0;k<=4;k++){
+  for(let k=0;k<=5;k++){
     const pL=poisson(k,lL)*100,pA=poisson(k,lA)*100;
-    rL.push({label:`${k} gol${k!==1?'es':''}`,p:pL});rA.push({label:`${k} gol${k!==1?'es':''}`,p:pA});
+    rL.push({label:`${k} gol${k!==1?'es':''}`,p:pL,i:k,max:5});rA.push({label:`${k} gol${k!==1?'es':''}`,p:pA,i:k,max:5});
     if(pL>mL)mL=pL;if(pA>mA)mA=pA;
   }
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
   const vc=pB>=.55?'v-green':pB>=.4?'v-yellow':'v-red';
-  const vt=pB>=.55?'✅ BTTS — Ambos anotan':pB>=.4?'⚠️ Posible BTTS':'❌ Sin Ambos Anotan';
-  showRes('res-btts',makeGrid([
+  const vt=pB>=.55?'BTTS - Ambos anotan':pB>=.4?'Posible BTTS':'Sin Ambos Anotan';
+  const metrics=[
     {l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},
     {l:nomL+' anota',v:(pLA*100).toFixed(1)+'%'},{l:nomA+' anota',v:(pAA*100).toFixed(1)+'%'},
-    {l:'BTTS Sí',v:(pB*100).toFixed(1)+'%'},{l:'BTTS No',v:(pN*100).toFixed(1)+'%'},
-  ])+makeBars('Goles '+nomL,rL,mL)+makeBars('Goles '+nomA,rA,mA)+`<div class="verdict ${vc}">${vt}</div>`);
+    {l:'BTTS Sí',v:(pB*100).toFixed(1)+'%'},{l:'BTTS No',v:(pN*100).toFixed(1)+'%'}
+  ];
+  showRes('res-btts',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),'',`<div class="verdict match-verdict ${vc}">${vt}</div>`));
 }
-
 function calcGoles(){
   const gfL=fv('g_gfL'),arcoL=fv('g_arcoL'),totL=fv('g_totL'),gcL=fv('g_gcL'),parL=fv('g_parL');
   const gfA=fv('g_gfA'),arcoA=fv('g_arcoA'),totA=fv('g_totA'),gcA=fv('g_gcA'),parA=fv('g_parA');
-  const precL=totL>0?arcoL/totL:.4,precA=totA>0?arcoA/totA:.4;
-  const defL=1/(1+parL*.05),defA=1/(1+parA*.05);
-  const lL=Math.max(.1,(gfL*.45+gcA*.35+precL*.6*.20)*defA);
-  const lA=Math.max(.1,(gfA*.45+gcL*.35+precA*.6*.20)*defL);
+  const precL=totL>0?clamp(arcoL/totL,.18,.58):.38,precA=totA>0?clamp(arcoA/totA,.18,.58):.38;
+  const xShotL=clamp(arcoL*.23+totL*.025,.15,2.8),xShotA=clamp(arcoA*.23+totA*.025,.15,2.8);
+  const keepL=clamp(1-(parL-3.2)*.025,.86,1.12),keepA=clamp(1-(parA-3.2)*.025,.86,1.12);
+  const lL=clamp((gfL*.50+gcA*.30+xShotL*.14+precL*.30*.06)*keepA, .15, 4.2);
+  const lA=clamp((gfA*.50+gcL*.30+xShotA*.14+precA*.30*.06)*keepL, .15, 4.2);
   const lT=lL+lA;
   const rL=[],rA=[];let mL=0,mA=0;
   for(let k=0;k<=5;k++){
     const pL=poisson(k,lL)*100,pA=poisson(k,lA)*100;
-    rL.push({label:`${k} gol${k!==1?'es':''}`,p:pL});rA.push({label:`${k} gol${k!==1?'es':''}`,p:pA});
+    rL.push({label:`${k} gol${k!==1?'es':''}`,p:pL,i:k,max:5});rA.push({label:`${k} gol${k!==1?'es':''}`,p:pA,i:k,max:5});
     if(pL>mL)mL=pL;if(pA>mA)mA=pA;
   }
-  const ov=calcOver(lT,[1.5,2.5,3.5]);
-  const o15=ov[1.5]*100,o25=ov[2.5]*100,o35=ov[3.5]*100;
+  const ov=calcOver(lT,[1.5,2.5,3.5,4.5]);
+  const un=calcUnder(lT,[1.5,2.5,3.5,4.5]);
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
-  const vc=o25>=65?'v-green':o15>=65?'v-yellow':'v-red';
-  const vt=o25>=65?'🔥 Alta probabilidad +2.5 goles':o15>=65?'⚽ Moderada: +1.5 goles':'🔒 Tendencia a pocos goles';
-  showRes('res-goles',makeGrid([{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esperado',v:lT.toFixed(2)}])
-    +makeBars('Goles '+nomL,rL,mL)+makeBars('Goles '+nomA,rA,mA)
-    +makeOvers([{l:'Over 1.5',v:o15},{l:'Over 2.5',v:o25},{l:'Over 3.5',v:o35}])
-    +`<div class="verdict ${vc}">${vt}</div>`);
+  const o15=ov[1.5]*100,o25=ov[2.5]*100,o35=ov[3.5]*100;
+  const vc=o25>=62?'v-green':o15>=66?'v-yellow':'v-red';
+  const vt=o25>=62?'Alta probabilidad +2.5 goles':o15>=66?'Moderada: +1.5 goles':'Tendencia a pocos goles';
+  const overRows=[{label:'Over 1.5',p:o15,i:1,max:4},{label:'Over 2.5',p:o25,i:2,max:4},{label:'Over 3.5',p:o35,i:3,max:4},{label:'Over 4.5',p:ov[4.5]*100,i:4,max:4}];
+  const underRows=[{label:'Under 4.5',p:un[4.5]*100,i:4,max:4},{label:'Under 3.5',p:un[3.5]*100,i:3,max:4},{label:'Under 2.5',p:un[2.5]*100,i:2,max:4},{label:'Under 1.5',p:un[1.5]*100,i:1,max:4}];
+  const extra=`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${overRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${underRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
+  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esperado',v:lT.toFixed(2)},{l:'Over 2.5',v:o25.toFixed(1)+'%'},{l:'Under 3.5',v:(un[3.5]*100).toFixed(1)+'%'}];
+  showRes('res-goles',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),extra,`<div class="verdict match-verdict ${vc}">${vt}</div>`));
 }
-
 function updateAvgTarjetas(){
-  const sL=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('tL'+i).value)||0),0);
-  const sA=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('tA'+i).value)||0),0);
-  document.getElementById('avgTL').textContent=(sL/5).toFixed(1);
-  document.getElementById('avgTA').textContent=(sA/5).toFixed(1);
+  const lL=clamp(fv('tar_avgL')*.72+fv('tar_rivalL')*.28,0,8);
+  const lA=clamp(fv('tar_avgA')*.72+fv('tar_rivalA')*.28,0,8);
+  document.getElementById('avgTL').textContent=lL.toFixed(1);
+  document.getElementById('avgTA').textContent=lA.toFixed(1);
 }
-document.querySelectorAll('.tL,.tA').forEach(i=>i.addEventListener('input',updateAvgTarjetas));
+document.querySelectorAll('#tar_avgL,#tar_rivalL,#tar_avgA,#tar_rivalA').forEach(i=>i.addEventListener('input',updateAvgTarjetas));
 
 function calcTarjetas(){
-  const lL=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('tL'+i).value)||0),0)/5;
-  const lA=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('tA'+i).value)||0),0)/5;
+  const lL=clamp(fv('tar_avgL')*.72+fv('tar_rivalL')*.28,.05,8);
+  const lA=clamp(fv('tar_avgA')*.72+fv('tar_rivalA')*.28,.05,8);
   const lT=lL+lA;
   const rL=[],rA=[],rT=[];let mL=0,mA=0,mT=0;
-  for(let k=1;k<=5;k++){
+  for(let k=0;k<=5;k++){
     const pL=poisson(k,lL)*100,pA=poisson(k,lA)*100;
-    rL.push({label:`${k} tarjeta${k>1?'s':''}`,p:pL});rA.push({label:`${k} tarjeta${k>1?'s':''}`,p:pA});
+    rL.push({label:`${k} tarjeta${k!==1?'s':''}`,p:pL,i:k,max:5});rA.push({label:`${k} tarjeta${k!==1?'s':''}`,p:pA,i:k,max:5});
     if(pL>mL)mL=pL;if(pA>mA)mA=pA;
   }
-  for(let k=1;k<=8;k++){const pT=poisson(k,lT)*100;rT.push({label:`${k} tarjeta${k>1?'s':''}`,p:pT});if(pT>mT)mT=pT;}
-  const ov=calcOver(lT,[1.5,2.5,3.5,4.5]);
+  for(let k=0;k<=8;k++){const pT=poisson(k,lT)*100;rT.push({label:`${k} tarjeta${k!==1?'s':''}`,p:pT,i:k,max:8});if(pT>mT)mT=pT;}
+  const ov=calcOver(lT,[1.5,2.5,3.5,4.5,5.5]);
+  const un=calcUnder(lT,[5.5,4.5,3.5,2.5]);
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
-  const vc=ov[3.5]*100>=55?'v-red':ov[2.5]*100>=55?'v-yellow':'v-green';
-  const vt=ov[3.5]*100>=55?'🟥 Partido caliente: +3.5 tarjetas':ov[2.5]*100>=55?'🟨 Moderado: +2.5 tarjetas':'🟩 Partido tranquilo';
-  showRes('res-tarjetas',makeGrid([{l:'Prom. '+nomL,v:lL.toFixed(1)},{l:'Prom. '+nomA,v:lA.toFixed(1)},{l:'Total esp.',v:lT.toFixed(1)}])
-    +makeBars('Tarjetas '+nomL,rL,mL)+makeBars('Tarjetas '+nomA,rA,mA)+makeBars('Tarjetas Total',rT,mT)
-    +makeOvers([{l:'Over 1.5',v:ov[1.5]*100},{l:'Over 2.5',v:ov[2.5]*100},{l:'Over 3.5',v:ov[3.5]*100},{l:'Over 4.5',v:ov[4.5]*100}])
-    +`<div class="verdict ${vc}">${vt}</div>`);
+  const vc=ov[4.5]*100>=55?'v-red':ov[3.5]*100>=55?'v-yellow':'v-green';
+  const vt=ov[4.5]*100>=55?'Partido caliente: +4.5 tarjetas':ov[3.5]*100>=55?'Moderado: +3.5 tarjetas':'Partido tranquilo';
+  const total=`<div class="total-bars"><h5>Tarjetas Total</h5><div class="team-bars">${rT.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,(r.p/mT)*100)}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>`;
+  const extra=total+`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${[{label:'Over 1.5',p:ov[1.5]*100,i:1,max:5},{label:'Over 2.5',p:ov[2.5]*100,i:2,max:5},{label:'Over 3.5',p:ov[3.5]*100,i:3,max:5},{label:'Over 4.5',p:ov[4.5]*100,i:4,max:5},{label:'Over 5.5',p:ov[5.5]*100,i:5,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${[{label:'Under 5.5',p:un[5.5]*100,i:5,max:5},{label:'Under 4.5',p:un[4.5]*100,i:4,max:5},{label:'Under 3.5',p:un[3.5]*100,i:3,max:5},{label:'Under 2.5',p:un[2.5]*100,i:2,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
+  const metrics=[{l:'Prom. '+nomL,v:lL.toFixed(1)},{l:'Prom. '+nomA,v:lA.toFixed(1)},{l:'Total esperado',v:lT.toFixed(1)},{l:'Over 4.5',v:(ov[4.5]*100).toFixed(1)+'%'},{l:'Under 5.5',v:(un[5.5]*100).toFixed(1)+'%'}];
+  showRes('res-tarjetas',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Tarjetas '+nomL),makeTeamPanel(nomA,rA,mA,'away','Tarjetas '+nomA),extra,`<div class="verdict match-verdict ${vc}">${vt}</div>`));
 }
-
 function calcGanador(){
   const nomL=STATE.nomL||'Local', nomA=STATE.nomA||'Visitante';
   const gfL=fv('gan_gfL'),gcL=fv('gan_gcL'),gfA=fv('gan_gfA'),gcA=fv('gan_gcA');
-  const last5L=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('gL'+i).value)||0),0)/5;
-  const last5A=[1,2,3,4,5].reduce((s,i)=>s+(parseInt(document.getElementById('gA'+i).value)||0),0)/5;
-  const lgAvg=1.35,homeAdv=1.12;
-  const lL=Math.max(.1,(gfL/lgAvg)*(gcA/lgAvg)*lgAvg*homeAdv);
-  const lA=Math.max(.1,(gfA/lgAvg)*(gcL/lgAvg)*lgAvg);
+  const posL=fv('gan_posL'),posA=fv('gan_posA'),dispL=fv('gan_dispL'),dispA=fv('gan_dispA');
+  const recentL=fv('gan_recentL')||gfL,recentA=fv('gan_recentA')||gfA;
+  const ptsL=fv('gan_ptsL')||1.5,ptsA=fv('gan_ptsA')||1.5;
+  const homeAdv=1.10;
+  const formL=clamp(1+(recentL-gfL)*.10+(ptsL-1.5)*.055,.82,1.22);
+  const formA=clamp(1+(recentA-gfA)*.10+(ptsA-1.5)*.055,.82,1.22);
+  const controlL=clamp(1+(posL-posA)*.003,.88,1.12),controlA=clamp(1+(posA-posL)*.003,.88,1.12);
+  const lL=clamp((gfL*.46+gcA*.30+recentL*.14+dispL*.045)*homeAdv*formL*controlL,.12,4.5);
+  const lA=clamp((gfA*.46+gcL*.30+recentA*.14+dispA*.045)*formA*controlA,.12,4.5);
   let pL=0,pA=0,pD=0;
-  for(let i=0;i<=6;i++) for(let j=0;j<=6;j++){
+  for(let i=0;i<=10;i++) for(let j=0;j<=10;j++){
     const p=poisson(i,lL)*poisson(j,lA);
     if(i>j)pL+=p;else if(i<j)pA+=p;else pD+=p;
   }
-  const ff=.08;
-  const aL=pL*(1+(last5L-last5A)*ff),aA=pA*(1+(last5A-last5L)*ff);
-  const tot=aL+aA+pD;
-  const pLF=aL/tot,pAF=aA/tot,pDF=pD/tot;
+  const tot=pL+pA+pD;
+  const pLF=pL/tot,pAF=pA/tot,pDF=pD/tot;
   const winner=pLF>pAF&&pLF>pDF?nomL:pAF>pLF&&pAF>pDF?nomA:'Empate';
   const wCls=pLF>pAF&&pLF>pDF?'v-green':pAF>pLF&&pAF>pDF?'v-blue':'v-yellow';
-  const bars=`<div class="winner-bars">
+  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Forma local',v:recentL.toFixed(2)},{l:'Forma visit.',v:recentA.toFixed(2)}];
+  const bars=`<div class="winner-bars modern">
     <div class="wrow"><div class="wlabel">${nomL}</div><div class="wwrap"><div class="wfill wf-l" style="width:${pLF*100}%"></div><span class="wpct">${(pLF*100).toFixed(1)}%</span></div></div>
     <div class="wrow"><div class="wlabel">Empate</div><div class="wwrap"><div class="wfill wf-d" style="width:${pDF*100}%"></div><span class="wpct">${(pDF*100).toFixed(1)}%</span></div></div>
     <div class="wrow"><div class="wlabel">${nomA}</div><div class="wwrap"><div class="wfill wf-a" style="width:${pAF*100}%"></div><span class="wpct">${(pAF*100).toFixed(1)}%</span></div></div>
   </div>`;
-  showRes('res-ganador',makeGrid([{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Forma local',v:last5L.toFixed(1)},{l:'Forma visit.',v:last5A.toFixed(1)}])
-    +bars+`<div class="verdict ${wCls}">🏆 ${winner} — ${(Math.max(pLF,pAF,pDF)*100).toFixed(1)}%</div>`);
+  const stage=`<div class="winner-stage"><div class="winner-team">${crestHTML(nomL,'local')}<div class="team-title">${esc(nomL)}</div></div><div class="winner-vs">VS</div><div class="winner-team">${crestHTML(nomA,'away')}<div class="team-title">${esc(nomA)}</div></div></div>`;
+  showRes('res-ganador',`<div class="winner-result">${makeMetricStrip(metrics)}${stage}${bars}<div class="verdict match-verdict ${wCls}">Ganador probable: ${winner} - ${(Math.max(pLF,pAF,pDF)*100).toFixed(1)}%</div></div>`);
 }
 
 // ═══════════════════════════════════════════════════
