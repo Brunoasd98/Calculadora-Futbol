@@ -130,6 +130,28 @@
   .total-bars{margin-top:16px;background:rgba(8,18,28,.7);border:1px solid rgba(30,45,61,.8);border-radius:10px;padding:12px;}
   .total-bars h5{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:#6f91ac;margin-bottom:10px;}
   .verdict.match-verdict{margin-top:18px;}
+  /* Tarjetas de veredicto mejoradas (Goles, Tarjetas, Ganador) */
+  .verdict-card{margin-top:18px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 18px;border-radius:12px;background:linear-gradient(135deg,rgba(10,20,30,.96),rgba(9,15,22,.98));border:1px solid rgba(95,145,187,.42);box-shadow:0 16px 40px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.03);}
+  .verdict-card.v-green{border-color:rgba(0,229,160,.46);background:linear-gradient(135deg,rgba(0,229,160,.13),rgba(9,15,22,.98));}
+  .verdict-card.v-yellow{border-color:rgba(255,193,7,.46);background:linear-gradient(135deg,rgba(255,193,7,.14),rgba(9,15,22,.98));}
+  .verdict-card.v-red{border-color:rgba(255,58,92,.46);background:linear-gradient(135deg,rgba(255,58,92,.13),rgba(9,15,22,.98));}
+  .verdict-card.v-blue{border-color:rgba(0,153,255,.46);background:linear-gradient(135deg,rgba(0,153,255,.13),rgba(9,15,22,.98));}
+  .verdict-icon{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;font-size:1.5rem;box-shadow:0 0 26px rgba(0,229,160,.22);flex-shrink:0;}
+  .verdict-card.v-green .verdict-icon{background:var(--accent);box-shadow:0 0 26px rgba(0,229,160,.3);}
+  .verdict-card.v-yellow .verdict-icon{background:var(--yellow);box-shadow:0 0 26px rgba(255,193,7,.3);}
+  .verdict-card.v-red .verdict-icon{background:var(--red);box-shadow:0 0 26px rgba(255,58,92,.3);}
+  .verdict-card.v-blue .verdict-icon{background:var(--accent2);box-shadow:0 0 26px rgba(0,153,255,.3);}
+  .verdict-kicker{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#6f91ac;margin-bottom:3px;}
+  .verdict-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1.4px;line-height:1;color:#f4f8fb;}
+  .verdict-note{font-size:.78rem;color:#8aa7bd;margin-top:5px;}
+  .verdict-pct{text-align:right;min-width:76px;}
+  .verdict-pct span{font-size:.65rem;color:#6f91ac;text-transform:uppercase;letter-spacing:1px;}
+  .verdict-pct strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:1px;}
+  .verdict-card.v-green .verdict-pct strong{color:var(--accent);}
+  .verdict-card.v-yellow .verdict-pct strong{color:var(--yellow);}
+  .verdict-card.v-red .verdict-pct strong{color:var(--red);}
+  .verdict-card.v-blue .verdict-pct strong{color:var(--accent2);}
+  @media(max-width:620px){.verdict-card{grid-template-columns:auto 1fr}.verdict-pct{grid-column:1/-1;text-align:left}}
   .btts-verdict-card{margin-top:20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 18px;border-radius:12px;background:linear-gradient(135deg,rgba(10,20,30,.96),rgba(9,15,22,.98));border:1px solid rgba(95,145,187,.42);box-shadow:0 16px 40px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.03);}
   .btts-verdict-card.yes{border-color:rgba(0,229,160,.46);background:linear-gradient(135deg,rgba(0,229,160,.13),rgba(9,15,22,.98));}
   .btts-verdict-card.maybe{border-color:rgba(255,193,7,.46);background:linear-gradient(135deg,rgba(255,193,7,.14),rgba(9,15,22,.98));}
@@ -158,11 +180,11 @@
   .wf-d{background:linear-gradient(90deg,var(--yellow),rgba(255,193,7,.4));}
   .wf-a{background:linear-gradient(90deg,var(--accent2),rgba(0,153,255,.4));}
   .wpct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:.78rem;font-weight:700;color:rgba(0,0,0,.75);}
-  .team-badge{width:34px;height:38px;display:grid;place-items:center;flex-shrink:0;background:linear-gradient(160deg,rgba(0,229,160,.95),rgba(0,153,255,.85));color:#001018;font-size:.62rem;font-weight:800;letter-spacing:.4px;clip-path:polygon(50% 0,94% 18%,86% 78%,50% 100%,14% 78%,6% 18%);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset;}
-  .team-badge.away{background:linear-gradient(160deg,rgba(0,153,255,.95),rgba(255,193,7,.88));}
+  .team-badge{width:34px;height:38px;display:grid;place-items:center;flex-shrink:0;background:none;color:var(--muted);font-size:.62rem;font-weight:800;letter-spacing:.4px;}
+  .team-badge.away{background:none;}
   .drop-item .team-badge{width:28px;height:32px;font-size:.56rem;}
-  .sel-card .team-badge{width:30px;height:34px;font-size:.58rem;}
-  .team-badge img{max-width:86%;max-height:86%;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));}
+  .sel-card .team-badge{width:34px;height:34px;font-size:.58rem;}
+  .team-badge img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
 </style>
 </head>
 <body>
@@ -914,7 +936,7 @@ const PALADAR_CLUB_CREST_URLS = {
   "Sevilla":"https://paladarnegro.net/escudoteca/espana/laliga/png/sevilla.png",
   "Valencia":"https://paladarnegro.net/escudoteca/espana/laliga/png/valencia.png",
   "Villarreal":"https://paladarnegro.net/escudoteca/espana/laliga/png/villarreal.png",
-  "Boca Juniors":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/boca.png",
+  "Boca Juniors":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/boca_2026.png",
   "River Plate":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/river.png",
   "Racing Club":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/racing.png",
   "Independiente":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/independiente.png",
@@ -951,11 +973,12 @@ const PALADAR_CLUB_CREST_URLS = {
 };
 function paladarClubCrestUrl(name){return PALADAR_CLUB_CREST_URLS[name] || '';}
 const CUSTOM_CREST_URLS = {
+  "Boca Juniors":"https://paladarnegro.net/escudoteca/argentina/primeradivision/png/boca_2026.png",
   // Pegá acá URLs directas de imágenes si querés forzar un escudo.
   // Ejemplo: "Barcelona":"https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
 };
 const CREST_FILES = {
-  "Boca Juniors":"Boca Juniors logo18.svg",
+  // "Boca Juniors" usa URL directa en PALADAR_CLUB_CREST_URLS
   "River Plate":"Club Atlético River Plate logo.svg",
   "Barcelona":"FC Barcelona (crest).svg",
   "Real Madrid":"Real Madrid CF (ancien logo).svg",
@@ -1042,7 +1065,13 @@ function hydrateCrests(root=document){
     const name=img.getAttribute('data-team-crest');
     if(!name || img.dataset.hydrated==='1') return;
     img.dataset.hydrated='1';
-    const apply=url=>{ if(url){ img.style.display=''; if(img.nextElementSibling) img.nextElementSibling.style.display='none'; img.src=url; } };
+    // Si la URL directa ya está seteada (paladarnegro / custom), no consultar Wikipedia
+    const directUrl=crestUrl(name);
+    if(directUrl && !directUrl.includes('wikipedia') && !directUrl.includes('commons.wikimedia')){
+      img.src=directUrl;
+      return;
+    }
+    const apply=url=>{ if(url) img.src=url; };
     if(WIKI_CACHE[name]){ apply(WIKI_CACHE[name]); return; }
     fetch(wikiSummaryUrl(name)).then(r=>r.ok?r.json():null).then(data=>{
       const url=data?.thumbnail?.source || data?.originalimage?.source || '';
@@ -1052,10 +1081,9 @@ function hydrateCrests(root=document){
   });
 }
 function crestHTML(name,side='local'){
-  const initials=teamInitials(name);
   const url=crestUrl(name);
-  const img=`<img class="crest-img" src="${url||''}" data-team-crest="${esc(name)}" alt="Escudo ${esc(name)}" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">`;
-  return `<div class="crest-wrap">${img}<div class="crest-fallback" style="${url?'display:none':''}">${initials}</div></div>`;
+  const img=`<img class="crest-img" src="${url||''}" data-team-crest="${esc(name)}" alt="Escudo ${esc(name)}" referrerpolicy="no-referrer" onerror="this.style.opacity='0';">`;
+  return `<div class="crest-wrap">${img}</div>`;
 }
 function miniCrestHTML(name,side='local'){
   const initials=teamInitials(name);
@@ -1069,6 +1097,11 @@ function makeTeamPanel(name,rows,maxP,side,title){
   return `<section class="team-result-card ${side}"><div class="team-hero">${crestHTML(name,side)}<div class="team-title">${esc(name)}</div><div class="team-sub">${title}</div></div><div class="team-bars">${bars}</div></section>`;
 }
 function makeMatchLayout(metrics,left,right,extra,verdict){return `<div class="match-result">${makeMetricStrip(metrics)}<div class="team-result-grid">${left}${right}</div>${extra||''}${verdict||''}</div>`;}
+function makeVerdictCard(cls, icon, kicker, title, note, pctLabel, pctVal){
+  const isHtml = icon && icon.startsWith('<');
+  const iconContent = isHtml ? icon : `<span style="font-size:1.5rem">${icon}</span>`;
+  return `<div class="verdict-card ${cls}"><div class="verdict-icon" style="${isHtml?'padding:4px;background:transparent;box-shadow:none;':''}">${iconContent}</div><div><div class="verdict-kicker">${kicker}</div><div class="verdict-title">${title}</div><div class="verdict-note">${note}</div></div><div class="verdict-pct"><span>${pctLabel}</span><strong>${pctVal}</strong></div></div>`;
+}
 function makeBTTSVerdict(prob){
   const pct=prob*100;
   const state=prob>=.55?'yes':prob>=.4?'maybe':'no';
@@ -1140,7 +1173,11 @@ function calcGoles(){
   const underRows=[{label:'Under 4.5',p:un[4.5]*100,i:4,max:4},{label:'Under 3.5',p:un[3.5]*100,i:3,max:4},{label:'Under 2.5',p:un[2.5]*100,i:2,max:4},{label:'Under 1.5',p:un[1.5]*100,i:1,max:4}];
   const extra=`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${overRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${underRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
   const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esperado',v:lT.toFixed(2)},{l:'Over 2.5',v:o25.toFixed(1)+'%'},{l:'Under 3.5',v:(un[3.5]*100).toFixed(1)+'%'}];
-  showRes('res-goles',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),extra,`<div class="verdict match-verdict ${vc}">${vt}</div>`));
+  const golesIcon=o25>=62?'⚽':o15>=66?'🎯':'🔒';
+  const golesKicker='Veredicto Goles';
+  const golesNote=o25>=62?`Se esperan ${lT.toFixed(1)} goles en total — partido con llegada en ambos arcos.`:o15>=66?`Se esperan ${lT.toFixed(1)} goles en total — hay chances de al menos un tanto.`:`Se esperan ${lT.toFixed(1)} goles en total — tendencia a partido cerrado.`;
+  const golesVerdict=makeVerdictCard(vc,golesIcon,golesKicker,vt,golesNote,'Over 2.5',o25.toFixed(1)+'%');
+  showRes('res-goles',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),extra,golesVerdict));
 }
 function updateAvgTarjetas(){
   const lL=clamp(fv('tar_avgL')*.72+fv('tar_rivalL')*.28,0,8);
@@ -1169,7 +1206,11 @@ function calcTarjetas(){
   const total=`<div class="total-bars"><h5>Tarjetas Total</h5><div class="team-bars">${rT.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,(r.p/mT)*100)}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>`;
   const extra=total+`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${[{label:'Over 1.5',p:ov[1.5]*100,i:1,max:5},{label:'Over 2.5',p:ov[2.5]*100,i:2,max:5},{label:'Over 3.5',p:ov[3.5]*100,i:3,max:5},{label:'Over 4.5',p:ov[4.5]*100,i:4,max:5},{label:'Over 5.5',p:ov[5.5]*100,i:5,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${[{label:'Under 5.5',p:un[5.5]*100,i:5,max:5},{label:'Under 4.5',p:un[4.5]*100,i:4,max:5},{label:'Under 3.5',p:un[3.5]*100,i:3,max:5},{label:'Under 2.5',p:un[2.5]*100,i:2,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
   const metrics=[{l:'Prom. '+nomL,v:lL.toFixed(1)},{l:'Prom. '+nomA,v:lA.toFixed(1)},{l:'Total esperado',v:lT.toFixed(1)},{l:'Over 4.5',v:(ov[4.5]*100).toFixed(1)+'%'},{l:'Under 5.5',v:(un[5.5]*100).toFixed(1)+'%'}];
-  showRes('res-tarjetas',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Tarjetas '+nomL),makeTeamPanel(nomA,rA,mA,'away','Tarjetas '+nomA),extra,`<div class="verdict match-verdict ${vc}">${vt}</div>`));
+  const tarIcon=ov[4.5]*100>=55?'🟥':ov[3.5]*100>=55?'🟨':'🟩';
+  const tarKicker='Veredicto Tarjetas';
+  const tarNote=ov[4.5]*100>=55?`Total esperado: ${lT.toFixed(1)} tarjetas — partido muy disputado.`:ov[3.5]*100>=55?`Total esperado: ${lT.toFixed(1)} tarjetas — árbitro activo.`:`Total esperado: ${lT.toFixed(1)} tarjetas — partido limpio.`;
+  const tarVerdict=makeVerdictCard(vc,tarIcon,tarKicker,vt,tarNote,'Over 4.5',(ov[4.5]*100).toFixed(1)+'%');
+  showRes('res-tarjetas',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Tarjetas '+nomL),makeTeamPanel(nomA,rA,mA,'away','Tarjetas '+nomA),extra,tarVerdict));
 }
 function calcGanador(){
   const nomL=STATE.nomL||'Local', nomA=STATE.nomA||'Visitante';
@@ -1199,7 +1240,18 @@ function calcGanador(){
     <div class="wrow"><div class="wlabel">${nomA}</div><div class="wwrap"><div class="wfill wf-a" style="width:${pAF*100}%"></div><span class="wpct">${(pAF*100).toFixed(1)}%</span></div></div>
   </div>`;
   const stage=`<div class="winner-stage"><div class="winner-team">${crestHTML(nomL,'local')}<div class="team-title">${esc(nomL)}</div></div><div class="winner-vs">VS</div><div class="winner-team">${crestHTML(nomA,'away')}<div class="team-title">${esc(nomA)}</div></div></div>`;
-  showRes('res-ganador',`<div class="winner-result">${makeMetricStrip(metrics)}${stage}${bars}<div class="verdict match-verdict ${wCls}">Ganador probable: ${winner} - ${(Math.max(pLF,pAF,pDF)*100).toFixed(1)}%</div></div>`);
+  const ganSide=pLF>pAF&&pLF>pDF?'local':pAF>pLF&&pAF>pDF?'away':'empate';
+  const ganWinnerName=ganSide==='local'?nomL:ganSide==='away'?nomA:'Empate';
+  const ganCrestUrl=ganSide!=='empate'?crestUrl(ganWinnerName):'';
+  const ganIcon=ganCrestUrl
+    ? `<img src="${ganCrestUrl}" alt="${esc(ganWinnerName)}" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));" referrerpolicy="no-referrer" onerror="this.style.display='none';">`
+    : '🤝';
+  const ganKicker='Ganador Probable';
+  const ganNote=pLF>pAF&&pLF>pDF?`${nomL} favorito como local · ventaja en forma y ataque`
+    :pAF>pLF&&pAF>pDF?`${nomA} superior en este análisis · mejor proyección ofensiva`
+    :`Partido muy parejo entre ${nomL} y ${nomA}`;
+  const ganVerdict=makeVerdictCard(wCls,ganIcon,ganKicker,'Ganador: '+winner,ganNote,'Prob.',(Math.max(pLF,pAF,pDF)*100).toFixed(1)+'%');
+  showRes('res-ganador',`<div class="winner-result">${makeMetricStrip(metrics)}${stage}${bars}${ganVerdict}</div>`);
 }
 
 // ═══════════════════════════════════════════════════
