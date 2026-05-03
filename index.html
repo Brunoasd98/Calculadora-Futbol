@@ -84,6 +84,17 @@
   .match-row span{font-size:.74rem;color:var(--muted);width:58px;flex-shrink:0;}
   .match-row input{flex:1;padding:7px 10px;background:var(--input-bg);border:1px solid var(--border);
     border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;}
+  .five-results{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px;}
+  .res-btn{width:100%;min-width:0;padding:8px 2px;border-radius:7px;border:1px solid var(--border);background:var(--input-bg);color:var(--muted);font-size:.8rem;font-weight:700;cursor:pointer;text-align:center;transition:background .15s,color .15s,border-color .15s;box-sizing:border-box;}
+  .res-btn[data-val="G"]{background:rgba(0,229,160,.18);border-color:rgba(0,229,160,.5);color:var(--accent);}
+  .res-btn[data-val="E"]{background:rgba(255,193,7,.15);border-color:rgba(255,193,7,.5);color:var(--yellow);}
+  .res-btn[data-val="P"]{background:rgba(255,58,92,.15);border-color:rgba(255,58,92,.5);color:var(--red);}
+  .res-btn[data-val="?"]{color:var(--muted);}
+  .five-goals{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px;}
+  .five-goals input{width:100%;min-width:0;padding:7px 2px;background:var(--input-bg);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.85rem;text-align:center;outline:none;box-sizing:border-box;}
+  .five-goals input:focus{border-color:var(--accent2);}
+  .avg-result{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);border-radius:8px;margin-bottom:11px;font-size:.72rem;color:var(--muted);}
+  .avg-result strong{color:var(--accent);font-size:1rem;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
   .avg-display{margin-top:10px;padding:8px 12px;background:var(--input-bg);border-radius:8px;
     font-size:.78rem;color:var(--muted);text-align:center;}
   .avg-display span{color:var(--accent);font-weight:700;font-size:1rem;}
@@ -243,13 +254,49 @@
       <div class="two-col">
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="btts_nomL_label">Local</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="btts_gfL" step="0.01" value="1.31" oninput="syncFrom('gfL',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="btts_gcL" step="0.01" value="1.03" oninput="syncFrom('gcL',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="btts_gfL_1" min="0" step="1" value="1" oninput="calcAvg5('btts_gfL','gfL')">
+              <input type="number" id="btts_gfL_2" min="0" step="1" value="2" oninput="calcAvg5('btts_gfL','gfL')">
+              <input type="number" id="btts_gfL_3" min="0" step="1" value="1" oninput="calcAvg5('btts_gfL','gfL')">
+              <input type="number" id="btts_gfL_4" min="0" step="1" value="2" oninput="calcAvg5('btts_gfL','gfL')">
+              <input type="number" id="btts_gfL_5" min="0" step="1" value="1" oninput="calcAvg5('btts_gfL','gfL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="btts_gfL_avg">1.40</strong></div>
+          </div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="btts_gcL_1" min="0" step="1" value="1" oninput="calcAvg5('btts_gcL','gcL')">
+              <input type="number" id="btts_gcL_2" min="0" step="1" value="0" oninput="calcAvg5('btts_gcL','gcL')">
+              <input type="number" id="btts_gcL_3" min="0" step="1" value="2" oninput="calcAvg5('btts_gcL','gcL')">
+              <input type="number" id="btts_gcL_4" min="0" step="1" value="1" oninput="calcAvg5('btts_gcL','gcL')">
+              <input type="number" id="btts_gcL_5" min="0" step="1" value="1" oninput="calcAvg5('btts_gcL','gcL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="btts_gcL_avg">1.00</strong></div>
+          </div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="btts_nomA_label">Visitante</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="btts_gfA" step="0.01" value="0.85" oninput="syncFrom('gfA',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="btts_gcA" step="0.01" value="1.33" oninput="syncFrom('gcA',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="btts_gfA_1" min="0" step="1" value="1" oninput="calcAvg5('btts_gfA','gfA')">
+              <input type="number" id="btts_gfA_2" min="0" step="1" value="0" oninput="calcAvg5('btts_gfA','gfA')">
+              <input type="number" id="btts_gfA_3" min="0" step="1" value="1" oninput="calcAvg5('btts_gfA','gfA')">
+              <input type="number" id="btts_gfA_4" min="0" step="1" value="2" oninput="calcAvg5('btts_gfA','gfA')">
+              <input type="number" id="btts_gfA_5" min="0" step="1" value="0" oninput="calcAvg5('btts_gfA','gfA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="btts_gfA_avg">0.80</strong></div>
+          </div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="btts_gcA_1" min="0" step="1" value="1" oninput="calcAvg5('btts_gcA','gcA')">
+              <input type="number" id="btts_gcA_2" min="0" step="1" value="2" oninput="calcAvg5('btts_gcA','gcA')">
+              <input type="number" id="btts_gcA_3" min="0" step="1" value="1" oninput="calcAvg5('btts_gcA','gcA')">
+              <input type="number" id="btts_gcA_4" min="0" step="1" value="1" oninput="calcAvg5('btts_gcA','gcA')">
+              <input type="number" id="btts_gcA_5" min="0" step="1" value="2" oninput="calcAvg5('btts_gcA','gcA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="btts_gcA_avg">1.40</strong></div>
+          </div>
         </div>
       </div>
       <button class="calc-btn" onclick="calcBTTS()">Calcular BTTS</button>
@@ -264,18 +311,54 @@
       <div class="two-col">
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="goles_nomL_label">Local</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="g_gfL" step="0.01" value="1.31" oninput="syncFrom('gfL',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="g_gfL_1" min="0" step="1" value="1" oninput="calcAvg5('g_gfL','gfL')">
+              <input type="number" id="g_gfL_2" min="0" step="1" value="2" oninput="calcAvg5('g_gfL','gfL')">
+              <input type="number" id="g_gfL_3" min="0" step="1" value="1" oninput="calcAvg5('g_gfL','gfL')">
+              <input type="number" id="g_gfL_4" min="0" step="1" value="2" oninput="calcAvg5('g_gfL','gfL')">
+              <input type="number" id="g_gfL_5" min="0" step="1" value="1" oninput="calcAvg5('g_gfL','gfL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="g_gfL_avg">1.40</strong></div>
+          </div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="g_arcoL" step="0.01" value="5.3" oninput="syncFrom('arcoL',this.value)"></div>
           <div class="fg"><label>Disparos totales</label><input type="number" id="g_totL" step="0.01" value="13.2" oninput="syncFrom('totL',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="g_gcL" step="0.01" value="1.03" oninput="syncFrom('gcL',this.value)"></div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="g_gcL_1" min="0" step="1" value="1" oninput="calcAvg5('g_gcL','gcL')">
+              <input type="number" id="g_gcL_2" min="0" step="1" value="0" oninput="calcAvg5('g_gcL','gcL')">
+              <input type="number" id="g_gcL_3" min="0" step="1" value="2" oninput="calcAvg5('g_gcL','gcL')">
+              <input type="number" id="g_gcL_4" min="0" step="1" value="1" oninput="calcAvg5('g_gcL','gcL')">
+              <input type="number" id="g_gcL_5" min="0" step="1" value="1" oninput="calcAvg5('g_gcL','gcL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="g_gcL_avg">1.00</strong></div>
+          </div>
           <div class="fg"><label>Paradas del arquero</label><input type="number" id="g_parL" step="0.01" value="3.8" oninput="syncFrom('parL',this.value)"></div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="goles_nomA_label">Visitante</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="g_gfA" step="0.01" value="0.85" oninput="syncFrom('gfA',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="g_gfA_1" min="0" step="1" value="1" oninput="calcAvg5('g_gfA','gfA')">
+              <input type="number" id="g_gfA_2" min="0" step="1" value="0" oninput="calcAvg5('g_gfA','gfA')">
+              <input type="number" id="g_gfA_3" min="0" step="1" value="1" oninput="calcAvg5('g_gfA','gfA')">
+              <input type="number" id="g_gfA_4" min="0" step="1" value="2" oninput="calcAvg5('g_gfA','gfA')">
+              <input type="number" id="g_gfA_5" min="0" step="1" value="0" oninput="calcAvg5('g_gfA','gfA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="g_gfA_avg">0.80</strong></div>
+          </div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="g_arcoA" step="0.01" value="4.1" oninput="syncFrom('arcoA',this.value)"></div>
           <div class="fg"><label>Disparos totales</label><input type="number" id="g_totA" step="0.01" value="11.5" oninput="syncFrom('totA',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="g_gcA" step="0.01" value="1.33" oninput="syncFrom('gcA',this.value)"></div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="g_gcA_1" min="0" step="1" value="1" oninput="calcAvg5('g_gcA','gcA')">
+              <input type="number" id="g_gcA_2" min="0" step="1" value="2" oninput="calcAvg5('g_gcA','gcA')">
+              <input type="number" id="g_gcA_3" min="0" step="1" value="1" oninput="calcAvg5('g_gcA','gcA')">
+              <input type="number" id="g_gcA_4" min="0" step="1" value="1" oninput="calcAvg5('g_gcA','gcA')">
+              <input type="number" id="g_gcA_5" min="0" step="1" value="2" oninput="calcAvg5('g_gcA','gcA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="g_gcA_avg">1.40</strong></div>
+          </div>
           <div class="fg"><label>Paradas del arquero</label><input type="number" id="g_parA" step="0.01" value="4.1" oninput="syncFrom('parA',this.value)"></div>
         </div>
       </div>
@@ -310,20 +393,76 @@
       <div class="two-col">
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="gan_nomL_label">Local</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="gan_gfL" step="0.01" value="1.31" oninput="syncFrom('gfL',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="gan_gcL" step="0.01" value="1.03" oninput="syncFrom('gcL',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="gan_gfL_1" min="0" step="1" value="1" oninput="calcAvg5('gan_gfL','gfL')">
+              <input type="number" id="gan_gfL_2" min="0" step="1" value="2" oninput="calcAvg5('gan_gfL','gfL')">
+              <input type="number" id="gan_gfL_3" min="0" step="1" value="1" oninput="calcAvg5('gan_gfL','gfL')">
+              <input type="number" id="gan_gfL_4" min="0" step="1" value="2" oninput="calcAvg5('gan_gfL','gfL')">
+              <input type="number" id="gan_gfL_5" min="0" step="1" value="1" oninput="calcAvg5('gan_gfL','gfL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="gan_gfL_avg">1.40</strong></div>
+          </div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="gan_gcL_1" min="0" step="1" value="1" oninput="calcAvg5('gan_gcL','gcL')">
+              <input type="number" id="gan_gcL_2" min="0" step="1" value="0" oninput="calcAvg5('gan_gcL','gcL')">
+              <input type="number" id="gan_gcL_3" min="0" step="1" value="2" oninput="calcAvg5('gan_gcL','gcL')">
+              <input type="number" id="gan_gcL_4" min="0" step="1" value="1" oninput="calcAvg5('gan_gcL','gcL')">
+              <input type="number" id="gan_gcL_5" min="0" step="1" value="1" oninput="calcAvg5('gan_gcL','gcL')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="gan_gcL_avg">1.00</strong></div>
+          </div>
           <div class="fg"><label>Posesión promedio (%)</label><input type="number" id="gan_posL" step="0.1" value="52" oninput="syncFrom('posL',this.value)"></div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="gan_dispL" step="0.01" value="5.3" oninput="syncFrom('arcoL',this.value)"></div>
-                    <div class="fg"><label>Prom. goles recientes</label><input type="number" id="gan_recentL" min="0" step="0.01" value="1.60"></div>
-          <div class="fg"><label>Puntos por partido recientes</label><input type="number" id="gan_ptsL" min="0" max="3" step="0.1" value="1.8"></div>        </div>
+          <div class="fg"><label>Últimos 5 partidos — resultados</label>
+            <div class="five-results" id="pts_L_wrap">
+              <button type="button" class="res-btn" data-side="L" data-idx="0" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="L" data-idx="1" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="L" data-idx="2" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="L" data-idx="3" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="L" data-idx="4" data-val="?" onclick="cycleResult(this)">?</button>
+            </div>
+            <div class="avg-result"><span>Puntos por partido</span><strong id="gan_ptsL_avg">—</strong></div>
+            <input type="hidden" id="gan_ptsL" value="1.5">
+          </div>
+        </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="gan_nomA_label">Visitante</span></h4>
-          <div class="fg"><label>Prom. goles a favor</label><input type="number" id="gan_gfA" step="0.01" value="0.85" oninput="syncFrom('gfA',this.value)"></div>
-          <div class="fg"><label>Prom. goles en contra</label><input type="number" id="gan_gcA" step="0.01" value="1.33" oninput="syncFrom('gcA',this.value)"></div>
+          <div class="fg"><label>Goles a favor — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="gan_gfA_1" min="0" step="1" value="1" oninput="calcAvg5('gan_gfA','gfA')">
+              <input type="number" id="gan_gfA_2" min="0" step="1" value="0" oninput="calcAvg5('gan_gfA','gfA')">
+              <input type="number" id="gan_gfA_3" min="0" step="1" value="1" oninput="calcAvg5('gan_gfA','gfA')">
+              <input type="number" id="gan_gfA_4" min="0" step="1" value="2" oninput="calcAvg5('gan_gfA','gfA')">
+              <input type="number" id="gan_gfA_5" min="0" step="1" value="0" oninput="calcAvg5('gan_gfA','gfA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles a favor</span><strong id="gan_gfA_avg">0.80</strong></div>
+          </div>
+          <div class="fg"><label>Goles en contra — últimos 5 partidos</label>
+            <div class="five-goals">
+              <input type="number" id="gan_gcA_1" min="0" step="1" value="1" oninput="calcAvg5('gan_gcA','gcA')">
+              <input type="number" id="gan_gcA_2" min="0" step="1" value="2" oninput="calcAvg5('gan_gcA','gcA')">
+              <input type="number" id="gan_gcA_3" min="0" step="1" value="1" oninput="calcAvg5('gan_gcA','gcA')">
+              <input type="number" id="gan_gcA_4" min="0" step="1" value="1" oninput="calcAvg5('gan_gcA','gcA')">
+              <input type="number" id="gan_gcA_5" min="0" step="1" value="2" oninput="calcAvg5('gan_gcA','gcA')">
+            </div>
+            <div class="avg-result"><span>Promedio goles en contra</span><strong id="gan_gcA_avg">1.40</strong></div>
+          </div>
           <div class="fg"><label>Posesión promedio (%)</label><input type="number" id="gan_posA" step="0.1" value="48" oninput="syncFrom('posA',this.value)"></div>
           <div class="fg"><label>Disparos al arco</label><input type="number" id="gan_dispA" step="0.01" value="4.1" oninput="syncFrom('arcoA',this.value)"></div>
-                    <div class="fg"><label>Prom. goles recientes</label><input type="number" id="gan_recentA" min="0" step="0.01" value="1.00"></div>
-          <div class="fg"><label>Puntos por partido recientes</label><input type="number" id="gan_ptsA" min="0" max="3" step="0.1" value="1.2"></div>        </div>
+          <div class="fg"><label>Últimos 5 partidos — resultados</label>
+            <div class="five-results" id="pts_A_wrap">
+              <button type="button" class="res-btn" data-side="A" data-idx="0" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="A" data-idx="1" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="A" data-idx="2" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="A" data-idx="3" data-val="?" onclick="cycleResult(this)">?</button>
+              <button type="button" class="res-btn" data-side="A" data-idx="4" data-val="?" onclick="cycleResult(this)">?</button>
+            </div>
+            <div class="avg-result"><span>Puntos por partido</span><strong id="gan_ptsA_avg">—</strong></div>
+            <input type="hidden" id="gan_ptsA" value="1.5">
+          </div>
+        </div>
       </div>
       <button class="calc-btn" onclick="calcGanador()">Calcular Ganador</button>
     </div>
@@ -705,10 +844,6 @@ const STATE = {
 
 // Mapa clave → ids que deben sincronizarse
 const SYNC_MAP = {
-  gfL:  ['btts_gfL','g_gfL','gan_gfL'],
-  gcL:  ['btts_gcL','g_gcL','gan_gcL'],
-  gfA:  ['btts_gfA','g_gfA','gan_gfA'],
-  gcA:  ['btts_gcA','g_gcA','gan_gcA'],
   arcoL:['g_arcoL','gan_dispL'],
   totL: ['g_totL'],
   arcoA:['g_arcoA','gan_dispA'],
@@ -718,6 +853,62 @@ const SYNC_MAP = {
   posL: ['gan_posL'],
   posA: ['gan_posA'],
 };
+
+// Cicla G → E → P → ? en cada botón y recalcula puntos por partido
+function cycleResult(btn) {
+  const cycle = {'?':'G','G':'E','E':'P','P':'?'};
+  const cur = btn.getAttribute('data-val');
+  const next = cycle[cur] || 'G';
+  btn.setAttribute('data-val', next);
+  btn.textContent = next;
+  const side = btn.getAttribute('data-side'); // 'L' o 'A'
+  const pts = {'G':3,'E':1,'P':0,'?':null};
+  const btns = document.querySelectorAll(`.res-btn[data-side="${side}"]`);
+  let sum = 0, count = 0;
+  btns.forEach(b => {
+    const v = pts[b.getAttribute('data-val')];
+    if(v !== null){ sum += v; count++; }
+  });
+  const avg = count ? sum / count : 1.5;
+  const disp = document.getElementById(`gan_pts${side}_avg`);
+  const hidden = document.getElementById(`gan_pts${side}`);
+  if(disp) disp.textContent = avg.toFixed(2);
+  if(hidden) hidden.value = avg.toFixed(2);
+}
+function calcAvg5(prefix, stateKey) {
+  let sum = 0, count = 0;
+  for(let i = 1; i <= 5; i++) {
+    const el = document.getElementById(prefix + '_' + i);
+    if(el) { sum += parseFloat(el.value) || 0; count++; }
+  }
+  const avg = count ? sum / count : 0;
+  const disp = document.getElementById(prefix + '_avg');
+  if(disp) disp.textContent = avg.toFixed(2);
+  if(stateKey) {
+    STATE[stateKey] = avg;
+    // Sincronizar avg entre paneles que comparten el mismo stateKey
+    const panels = {
+      gfL: ['btts_gfL','g_gfL','gan_gfL'],
+      gcL: ['btts_gcL','g_gcL','gan_gcL'],
+      gfA: ['btts_gfA','g_gfA','gan_gfA'],
+      gcA: ['btts_gcA','g_gcA','gan_gcA'],
+    };
+    if(panels[stateKey]) {
+      panels[stateKey].forEach(otherPrefix => {
+        if(otherPrefix !== prefix) {
+          // Copiar los valores de las 5 cajitas al otro panel
+          for(let i = 1; i <= 5; i++) {
+            const src = document.getElementById(prefix + '_' + i);
+            const dst = document.getElementById(otherPrefix + '_' + i);
+            if(src && dst && dst !== src) dst.value = src.value;
+          }
+          const otherDisp = document.getElementById(otherPrefix + '_avg');
+          if(otherDisp) otherDisp.textContent = avg.toFixed(2);
+        }
+      });
+    }
+  }
+}
 
 function syncAll(key, value, skipId) {
   STATE[key] = parseFloat(value) || 0;
@@ -759,11 +950,25 @@ function applyStateToAllInputs() {
       if(el && STATE[key] !== undefined) { el.value = parseFloat(STATE[key]).toFixed(2); highlight(el); }
     });
   });
+  // Rellenar cajitas de tarjetas
   [1,2,3,4,5].forEach(i => {
-    ['tL','tA','gL','gA'].forEach(pfx => {
+    ['tL','tA'].forEach(pfx => {
       const el = document.getElementById(pfx+i);
       if(el){ el.value = STATE[pfx][i-1] || 0; highlight(el); }
     });
+  });
+  // Rellenar cajitas de goles (distribuir el promedio actual en las 5 cajitas)
+  [['btts_gfL','gfL'],['btts_gcL','gcL'],['btts_gfA','gfA'],['btts_gcA','gcA'],
+   ['g_gfL','gfL'],['g_gcL','gcL'],['g_gfA','gfA'],['g_gcA','gcA'],
+   ['gan_gfL','gfL'],['gan_gcL','gcL'],['gan_gfA','gfA'],['gan_gcA','gcA']
+  ].forEach(([prefix, key]) => {
+    const val = STATE[key] || 0;
+    for(let i = 1; i <= 5; i++) {
+      const el = document.getElementById(prefix + '_' + i);
+      if(el) el.value = Math.round(val);
+    }
+    const disp = document.getElementById(prefix + '_avg');
+    if(disp) disp.textContent = val.toFixed(2);
   });
   updateAvgTarjetas();
   updateLabels();
@@ -1126,7 +1331,7 @@ function showRes(id,html){const el=document.getElementById(id);el.innerHTML=html
 //  CALCULATORS
 // ═══════════════════════════════════════════════════
 function calcBTTS(){
-  const gfL=fv('btts_gfL'),gcL=fv('btts_gcL'),gfA=fv('btts_gfA'),gcA=fv('btts_gcA');
+  const gfL=STATE.gfL||1.31,gcL=STATE.gcL||1.03,gfA=STATE.gfA||0.85,gcA=STATE.gcA||1.33;
   const lL=(gfL+gcA)/2,lA=(gfA+gcL)/2;
   const pLA=1-poisson(0,lL),pAA=1-poisson(0,lA);
   const pB=pLA*pAA,pN=1-pB;
@@ -1145,8 +1350,9 @@ function calcBTTS(){
   showRes('res-btts',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Goles '+nomL),makeTeamPanel(nomA,rA,mA,'away','Goles '+nomA),'',makeBTTSVerdict(pB)));
 }
 function calcGoles(){
-  const gfL=fv('g_gfL'),arcoL=fv('g_arcoL'),totL=fv('g_totL'),gcL=fv('g_gcL'),parL=fv('g_parL');
-  const gfA=fv('g_gfA'),arcoA=fv('g_arcoA'),totA=fv('g_totA'),gcA=fv('g_gcA'),parA=fv('g_parA');
+  const gfL=STATE.gfL||1.31,gcL=STATE.gcL||1.03,gfA=STATE.gfA||0.85,gcA=STATE.gcA||1.33;
+  const arcoL=fv('g_arcoL'),totL=fv('g_totL'),parL=fv('g_parL');
+  const arcoA=fv('g_arcoA'),totA=fv('g_totA'),parA=fv('g_parA');
   const precL=totL>0?clamp(arcoL/totL,.18,.58):.38,precA=totA>0?clamp(arcoA/totA,.18,.58):.38;
   const xShotL=clamp(arcoL*.23+totL*.025,.15,2.8),xShotA=clamp(arcoA*.23+totA*.025,.15,2.8);
   const keepL=clamp(1-(parL-3.2)*.025,.86,1.12),keepA=clamp(1-(parA-3.2)*.025,.86,1.12);
@@ -1205,16 +1411,15 @@ function calcTarjetas(){
 }
 function calcGanador(){
   const nomL=STATE.nomL||'Local', nomA=STATE.nomA||'Visitante';
-  const gfL=fv('gan_gfL'),gcL=fv('gan_gcL'),gfA=fv('gan_gfA'),gcA=fv('gan_gcA');
+  const gfL=STATE.gfL||1.31, gcL=STATE.gcL||1.03, gfA=STATE.gfA||0.85, gcA=STATE.gcA||1.33;
   const posL=fv('gan_posL'),posA=fv('gan_posA'),dispL=fv('gan_dispL'),dispA=fv('gan_dispA');
-  const recentL=fv('gan_recentL')||gfL,recentA=fv('gan_recentA')||gfA;
   const ptsL=fv('gan_ptsL')||1.5,ptsA=fv('gan_ptsA')||1.5;
   const homeAdv=1.10;
-  const formL=clamp(1+(recentL-gfL)*.10+(ptsL-1.5)*.055,.82,1.22);
-  const formA=clamp(1+(recentA-gfA)*.10+(ptsA-1.5)*.055,.82,1.22);
+  const formL=clamp(1+(ptsL-1.5)*.055,.82,1.22);
+  const formA=clamp(1+(ptsA-1.5)*.055,.82,1.22);
   const controlL=clamp(1+(posL-posA)*.003,.88,1.12),controlA=clamp(1+(posA-posL)*.003,.88,1.12);
-  const lL=clamp((gfL*.46+gcA*.30+recentL*.14+dispL*.045)*homeAdv*formL*controlL,.12,4.5);
-  const lA=clamp((gfA*.46+gcL*.30+recentA*.14+dispA*.045)*formA*controlA,.12,4.5);
+  const lL=clamp((gfL*.46+gcA*.30+gfL*.14+dispL*.045)*homeAdv*formL*controlL,.12,4.5);
+  const lA=clamp((gfA*.46+gcL*.30+gfA*.14+dispA*.045)*formA*controlA,.12,4.5);
   let pL=0,pA=0,pD=0;
   for(let i=0;i<=10;i++) for(let j=0;j<=10;j++){
     const p=poisson(i,lL)*poisson(j,lA);
