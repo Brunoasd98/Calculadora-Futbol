@@ -1429,7 +1429,7 @@ function calcGanador(){
   const pLF=pL/tot,pAF=pA/tot,pDF=pD/tot;
   const winner=pLF>pAF&&pLF>pDF?nomL:pAF>pLF&&pAF>pDF?nomA:'Empate';
   const wCls=pLF>pAF&&pLF>pDF?'v-green':pAF>pLF&&pAF>pDF?'v-blue':'v-yellow';
-  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Forma local',v:recentL.toFixed(2)},{l:'Forma visit.',v:recentA.toFixed(2)}];
+  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Forma local',v:(ptsL).toFixed(2)},{l:'Forma visit.',v:(ptsA).toFixed(2)}];
   const bars=`<div class="winner-bars modern">
     <div class="wrow"><div class="wlabel">${nomL}</div><div class="wwrap"><div class="wfill wf-l" style="width:${pLF*100}%"></div><span class="wpct">${(pLF*100).toFixed(1)}%</span></div></div>
     <div class="wrow"><div class="wlabel">Empate</div><div class="wwrap"><div class="wfill wf-d" style="width:${pDF*100}%"></div><span class="wpct">${(pDF*100).toFixed(1)}%</span></div></div>
