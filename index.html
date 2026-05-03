@@ -27,12 +27,18 @@
   @media(max-width:600px){.search-pair{grid-template-columns:1fr;}}
   .search-box{position:relative;}
   .search-box>label{display:block;font-size:.72rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-  .search-wrap{position:relative;}
-  .s-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
-  .search-input{width:100%;padding:11px 14px 11px 36px;background:var(--input-bg);border:1px solid var(--border);
+  .search-wrap{position:relative;display:flex;align-items:center;gap:8px;}
+  .s-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;z-index:1;}
+  .search-input{flex:1;min-width:0;padding:11px 14px 11px 36px;background:var(--input-bg);border:1px solid var(--border);
     border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
   .search-input:focus{border-color:var(--accent);}
   .search-input::placeholder{color:var(--muted);}
+  .paste-btn{flex-shrink:0;padding:9px 12px;border-radius:9px;border:1px solid rgba(0,229,160,.35);background:rgba(0,229,160,.1);color:var(--accent);font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s,transform .1s;letter-spacing:.3px;font-family:'DM Sans',sans-serif;}
+  .paste-btn:hover{background:rgba(0,229,160,.22);}
+  .paste-btn:active{transform:scale(.95);}
+  .paste-btn.loading{opacity:.5;cursor:wait;}
+  .paste-btn.ok{background:rgba(0,229,160,.25);border-color:var(--accent);}
+  .paste-btn.err{background:rgba(255,58,92,.15);border-color:var(--red);color:var(--red);}
   .dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1a2535;
     border:1px solid var(--accent);border-radius:10px;z-index:200;max-height:260px;
     overflow-y:auto;display:none;box-shadow:0 10px 30px rgba(0,0,0,.5);}
@@ -214,6 +220,7 @@
         <div class="search-wrap">
           <span class="s-icon">🏠</span>
           <input class="search-input" id="searchLocal" type="text" placeholder="Ej: Real Madrid..." autocomplete="off">
+          <button class="paste-btn" id="pasteLocal" title="Pegar datos de Sofascore (Local)">⬇ Pegar</button>
         </div>
         <div class="dropdown" id="dropLocal"></div>
         <div class="sel-card" id="selLocal">
@@ -227,6 +234,7 @@
         <div class="search-wrap">
           <span class="s-icon">✈️</span>
           <input class="search-input" id="searchAway" type="text" placeholder="Ej: Barcelona..." autocomplete="off">
+          <button class="paste-btn" id="pasteAway" title="Pegar datos de Sofascore (Visitante)">⬇ Pegar</button>
         </div>
         <div class="dropdown" id="dropAway"></div>
         <div class="sel-card" id="selAway">
@@ -1471,6 +1479,56 @@ document.addEventListener('click',e=>{
 // Init
 updateAvgTarjetas();
 updateLabels();
+
+// ── Botones Pegar (bridge con extensión CalculaFut) ───────────────────
+['Local','Away'].forEach(cap => {
+  const btn = document.getElementById('paste' + cap);
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const side = cap === 'Local' ? 'local' : 'visitante';
+    btn.classList.add('loading');
+    btn.textContent = '⏳';
+
+    // La extensión expone window.__cft_paste o lo hace via message
+    try {
+      // Método 1: función directa inyectada por la extensión
+      if (typeof window.__cft_paste === 'function') {
+        const res = await window.__cft_paste(side);
+        flashBtn(btn, res.ok);
+        return;
+      }
+      // Método 2: postMessage — la extensión escucha y responde
+      window.postMessage({ type: 'CFT_PASTE_REQUEST', side }, '*');
+      // Esperar respuesta
+      const res = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('timeout')), 3000);
+        window.addEventListener('message', function handler(e) {
+          if (e.data?.type === 'CFT_PASTE_RESPONSE' && e.data.side === side) {
+            clearTimeout(timeout);
+            window.removeEventListener('message', handler);
+            resolve(e.data);
+          }
+        });
+      });
+      flashBtn(btn, res.ok);
+    } catch(e) {
+      // Extensión no instalada o timeout
+      flashBtn(btn, false, 'Instalá la extensión');
+    }
+  });
+});
+
+function flashBtn(btn, ok, label) {
+  const side = btn.id === 'pasteLocal' ? 'Local' : 'Away';
+  const icon = side === 'Local' ? '🏠' : '✈️';
+  btn.classList.remove('loading','ok','err');
+  btn.classList.add(ok ? 'ok' : 'err');
+  btn.textContent = ok ? '✅ Pegado' : (label || '❌ Error');
+  setTimeout(() => {
+    btn.classList.remove('ok','err');
+    btn.textContent = `⬇ Pegar`;
+  }, 2500);
+}
 </script>
 </body>
 </html>
