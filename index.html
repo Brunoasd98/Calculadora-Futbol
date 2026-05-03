@@ -1480,6 +1480,22 @@ document.addEventListener('click',e=>{
 updateAvgTarjetas();
 updateLabels();
 
+// ── Bridge con extensión CalculaFut ──────────────────────────────────
+// Escuchar evento de selección de equipo desde la extensión
+window.addEventListener('message', function(e) {
+  if (e.data?.type === 'CFT_SELECT_TEAM') {
+    const { name, side } = e.data;
+    if (!name || !side) return;
+    // Buscar en TEAMS para obtener nombre y liga exactos
+    let matchedName = name, matchedLeague = '';
+    const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const q = norm(name);
+    const hit = TEAMS.find(t => norm(t.n) === q) || TEAMS.find(t => norm(t.n).includes(q) || q.includes(norm(t.n)));
+    if (hit) { matchedName = hit.n; matchedLeague = hit.l + (hit.c ? ' · ' + hit.c : ''); }
+    selectTeam(matchedName, matchedLeague, side);
+  }
+});
+
 // ── Botones Pegar (bridge con extensión CalculaFut) ───────────────────
 ['Local','Away'].forEach(cap => {
   const btn = document.getElementById('paste' + cap);
