@@ -251,6 +251,7 @@
     <button class="tab-btn" onclick="openTab('goles',this)">Goles</button>
     <button class="tab-btn" onclick="openTab('tarjetas',this)">Tarjetas</button>
     <button class="tab-btn" onclick="openTab('ganador',this)">Ganador</button>
+    <button class="tab-btn" onclick="openTab('corners',this)">Corners</button>
   </div>
 
   <!-- BTTS -->
@@ -365,6 +366,27 @@
       <button class="calc-btn" onclick="calcGanador()">Calcular Ganador</button>
     </div>
     <div class="result-box" id="res-ganador"></div>
+  </div>
+
+  <!-- CORNERS -->
+  <div id="panel-corners" class="panel">
+    <div class="panel-card">
+      <h3>Predicción de Corners</h3>
+      <div class="two-col">
+        <div class="team-block">
+          <h4><span class="dot dot-l"></span><span id="corn_nomL_label">Local</span></h4>
+          <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_favL" step="0.1" value="5.0" oninput="syncFrom('cornL',this.value)"></div>
+          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_conL" step="0.1" value="4.5"></div>
+        </div>
+        <div class="team-block">
+          <h4><span class="dot dot-a"></span><span id="corn_nomA_label">Visitante</span></h4>
+          <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_favA" step="0.1" value="4.0" oninput="syncFrom('cornA',this.value)"></div>
+          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_conA" step="0.1" value="5.0"></div>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcCorners()">Calcular Corners</button>
+    </div>
+    <div class="result-box" id="res-corners"></div>
   </div>
 
 </div>
@@ -833,7 +855,7 @@ function highlight(el) {
 function updateLabels() {
   const nomL = STATE.nomL || 'Local';
   const nomA = STATE.nomA || 'Visitante';
-  ['btts','goles','tarj','gan'].forEach(p => {
+  ['btts','goles','tarj','gan','corn'].forEach(p => {
     const lEl = document.getElementById(p+'_nomL_label');
     const aEl = document.getElementById(p+'_nomA_label');
     if(lEl) lEl.textContent = nomL;
@@ -1356,6 +1378,39 @@ document.addEventListener('click',e=>{
   });
 });
 
+function calcCorners(){
+  const favL=fv('corn_favL'), conL=fv('corn_conL');
+  const favA=fv('corn_favA'), conA=fv('corn_conA');
+  const nomL=STATE.nomL||'Local', nomA=STATE.nomA||'Visitante';
+  // λ de corners: promedio de córners a favor propio + córners en contra del rival
+  const lL=clamp((favL+conA)/2,.5,12);
+  const lA=clamp((favA+conL)/2,.5,12);
+  const lT=lL+lA;
+  const rL=[],rA=[]; let mL=0,mA=0;
+  for(let k=0;k<=12;k++){
+    const pL=poisson(k,lL)*100, pA=poisson(k,lA)*100;
+    rL.push({label:`${k}`,p:pL,i:k,max:12});
+    rA.push({label:`${k}`,p:pA,i:k,max:12});
+    if(pL>mL)mL=pL; if(pA>mA)mA=pA;
+  }
+  const ov=calcOver(lT,[6.5,7.5,8.5,9.5,10.5]);
+  const un=calcUnder(lT,[10.5,9.5,8.5,7.5,6.5]);
+  const o85=ov[8.5]*100, o75=ov[7.5]*100;
+  const vc=o85>=55?'v-green':o75>=55?'v-yellow':'v-red';
+  const vt=o85>=55?`Alta probabilidad +8.5 corners`:o75>=55?`Moderado: +7.5 corners`:`Tendencia a pocos corners`;
+  const overRows=[{label:'Over 6.5',p:ov[6.5]*100,i:1,max:5},{label:'Over 7.5',p:ov[7.5]*100,i:2,max:5},{label:'Over 8.5',p:ov[8.5]*100,i:3,max:5},{label:'Over 9.5',p:ov[9.5]*100,i:4,max:5},{label:'Over 10.5',p:ov[10.5]*100,i:5,max:5}];
+  const underRows=[{label:'Under 10.5',p:un[10.5]*100,i:5,max:5},{label:'Under 9.5',p:un[9.5]*100,i:4,max:5},{label:'Under 8.5',p:un[8.5]*100,i:3,max:5},{label:'Under 7.5',p:un[7.5]*100,i:2,max:5},{label:'Under 6.5',p:un[6.5]*100,i:1,max:5}];
+  const extra=`<div class="market-panels">
+    <div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${overRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>
+    <div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${underRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>
+  </div>`;
+  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esp.',v:lT.toFixed(1)},{l:'Over 8.5',v:o85.toFixed(1)+'%'},{l:'Under 9.5',v:(un[9.5]*100).toFixed(1)+'%'}];
+  const cornIcon=o85>=55?'🟡':o75>=55?'⚪':'🔵';
+  const cornNote=`Se esperan ${lT.toFixed(1)} corners en total — λ: ${lL.toFixed(1)} local · ${lA.toFixed(1)} visitante.`;
+  const cornVerdict=makeVerdictCard(vc,cornIcon,'Veredicto Corners',vt,cornNote,'Over 8.5',o85.toFixed(1)+'%');
+  showRes('res-corners',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Corners '+nomL),makeTeamPanel(nomA,rA,mA,'away','Corners '+nomA),extra,cornVerdict));
+}
+
 // Init
 updateAvgTarjetas();
 updateLabels();
@@ -1413,7 +1468,6 @@ if (pasteAllBtn) {
   });
 }
 
-// Escuchar CFT_SELECT_TEAM desde la extensión
 </script>
 </body>
 </html>
