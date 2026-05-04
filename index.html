@@ -251,7 +251,6 @@
     <button class="tab-btn" onclick="openTab('goles',this)">Goles</button>
     <button class="tab-btn" onclick="openTab('tarjetas',this)">Tarjetas</button>
     <button class="tab-btn" onclick="openTab('ganador',this)">Ganador</button>
-    <button class="tab-btn" onclick="openTab('corners',this)">Corners</button>
   </div>
 
   <!-- BTTS -->
@@ -286,7 +285,6 @@
           <div class="fg"><label>Goles recibidos (prom. últimos 5)</label><input type="number" id="g_gcL" step="0.1" value="1.0" oninput="syncFrom('gcL',this.value)"></div>
           <div class="fg"><label>Remates al arco</label><input type="number" id="g_arcoL" step="0.1" value="5.3" oninput="syncFrom('arcoL',this.value)"></div>
           <div class="fg"><label>Remates totales</label><input type="number" id="g_totL" step="0.1" value="13.2" oninput="syncFrom('totL',this.value)"></div>
-          <div class="fg"><label>Corners por partido</label><input type="number" id="g_cornL" step="0.1" value="5.0" oninput="syncFrom('cornL',this.value)"></div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="goles_nomA_label">Visitante</span></h4>
@@ -294,7 +292,6 @@
           <div class="fg"><label>Goles recibidos (prom. últimos 5)</label><input type="number" id="g_gcA" step="0.1" value="1.4" oninput="syncFrom('gcA',this.value)"></div>
           <div class="fg"><label>Remates al arco</label><input type="number" id="g_arcoA" step="0.1" value="4.1" oninput="syncFrom('arcoA',this.value)"></div>
           <div class="fg"><label>Remates totales</label><input type="number" id="g_totA" step="0.1" value="11.5" oninput="syncFrom('totA',this.value)"></div>
-          <div class="fg"><label>Corners por partido</label><input type="number" id="g_cornA" step="0.1" value="4.0" oninput="syncFrom('cornA',this.value)"></div>
         </div>
       </div>
       <button class="calc-btn" onclick="calcGoles()">Calcular Goles</button>
@@ -368,26 +365,6 @@
     <div class="result-box" id="res-ganador"></div>
   </div>
 
-  <!-- CORNERS -->
-  <div id="panel-corners" class="panel">
-    <div class="panel-card">
-      <h3>Predicción de Corners</h3>
-      <div class="two-col">
-        <div class="team-block">
-          <h4><span class="dot dot-l"></span><span id="corn_nomL_label">Local</span></h4>
-          <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_favL" step="0.1" value="5.0" oninput="syncFrom('cornL',this.value)"></div>
-          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_conL" step="0.1" value="4.5"></div>
-        </div>
-        <div class="team-block">
-          <h4><span class="dot dot-a"></span><span id="corn_nomA_label">Visitante</span></h4>
-          <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_favA" step="0.1" value="4.0" oninput="syncFrom('cornA',this.value)"></div>
-          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_conA" step="0.1" value="5.0"></div>
-        </div>
-      </div>
-      <button class="calc-btn" onclick="calcCorners()">Calcular Corners</button>
-    </div>
-    <div class="result-box" id="res-corners"></div>
-  </div>
 
 </div>
 <script>
@@ -756,7 +733,6 @@ const STATE = {
   nomL:'', nomA:'',
   gfL:1.4, gcL:1.0, gfA:0.8, gcA:1.4,
   arcoL:5.3, totL:13.2, arcoA:4.1, totA:11.5,
-  cornL:5.0, cornA:4.0,
   tL:[2,3,1,4,2], tA:[3,2,4,1,3],
 };
 
@@ -770,8 +746,6 @@ const SYNC_MAP = {
   totL: ['g_totL','gan_totL'],
   arcoA:['g_arcoA','gan_dispA'],
   totA: ['g_totA','gan_totA'],
-  cornL:['g_cornL'],
-  cornA:['g_cornA'],
 };
 
 // Cicla G → E → P → ? en cada botón y recalcula puntos por partido
@@ -855,7 +829,7 @@ function highlight(el) {
 function updateLabels() {
   const nomL = STATE.nomL || 'Local';
   const nomA = STATE.nomA || 'Visitante';
-  ['btts','goles','tarj','gan','corn'].forEach(p => {
+  ['btts','goles','tarj','gan'].forEach(p => {
     const lEl = document.getElementById(p+'_nomL_label');
     const aEl = document.getElementById(p+'_nomA_label');
     if(lEl) lEl.textContent = nomL;
@@ -883,10 +857,10 @@ function applyStateToAllInputs() {
 
 function resetTeamState(side) {
   if(side==='local') {
-    STATE.nomL=''; STATE.gfL=1.4; STATE.gcL=1.0; STATE.arcoL=5.3; STATE.totL=13.2; STATE.cornL=5.0;
+    STATE.nomL=''; STATE.gfL=1.4; STATE.gcL=1.0; STATE.arcoL=5.3; STATE.totL=13.2;
     STATE.tL=[2,3,1,4,2];
   } else {
-    STATE.nomA=''; STATE.gfA=0.8; STATE.gcA=1.4; STATE.arcoA=4.1; STATE.totA=11.5; STATE.cornA=4.0;
+    STATE.nomA=''; STATE.gfA=0.8; STATE.gcA=1.4; STATE.arcoA=4.1; STATE.totA=11.5;
     STATE.tA=[3,2,4,1,3];
   }
   applyStateToAllInputs();
@@ -1258,14 +1232,12 @@ function calcBTTS(){
 }
 function calcGoles(){
   const gfL=STATE.gfL||1.4, gcL=STATE.gcL||1.0, gfA=STATE.gfA||0.8, gcA=STATE.gcA||1.4;
-  const arcoL=fv('g_arcoL'), totL=fv('g_totL'), cornL=fv('g_cornL');
-  const arcoA=fv('g_arcoA'), totA=fv('g_totA'), cornA=fv('g_cornA');
+  const arcoL=fv('g_arcoL'), totL=fv('g_totL');
+  const arcoA=fv('g_arcoA'), totA=fv('g_totA');
   const precL=totL>0?clamp(arcoL/totL,.18,.58):.38, precA=totA>0?clamp(arcoA/totA,.18,.58):.38;
   const xShotL=clamp(arcoL*.23+totL*.025,.15,2.8), xShotA=clamp(arcoA*.23+totA*.025,.15,2.8);
-  // Corners como señal de presión ofensiva (bonus leve)
-  const cornBonusL=clamp(1+(cornL-4.5)*.012,.95,1.08), cornBonusA=clamp(1+(cornA-4.5)*.012,.95,1.08);
-  const lL=clamp((gfL*.50+gcA*.30+xShotL*.14+precL*.06)*cornBonusL, .15, 4.2);
-  const lA=clamp((gfA*.50+gcL*.30+xShotA*.14+precA*.06)*cornBonusA, .15, 4.2);
+  const lL=clamp((gfL*.50+gcA*.30+xShotL*.14+precL*.06), .15, 4.2);
+  const lA=clamp((gfA*.50+gcL*.30+xShotA*.14+precA*.06), .15, 4.2);
   const lT=lL+lA;
   const rL=[],rA=[];let mL=0,mA=0;
   for(let k=0;k<=5;k++){
@@ -1377,39 +1349,6 @@ document.addEventListener('click',e=>{
     if(box&&!box.contains(e.target))closeDD(side);
   });
 });
-
-function calcCorners(){
-  const favL=fv('corn_favL'), conL=fv('corn_conL');
-  const favA=fv('corn_favA'), conA=fv('corn_conA');
-  const nomL=STATE.nomL||'Local', nomA=STATE.nomA||'Visitante';
-  // λ de corners: promedio de córners a favor propio + córners en contra del rival
-  const lL=clamp((favL+conA)/2,.5,12);
-  const lA=clamp((favA+conL)/2,.5,12);
-  const lT=lL+lA;
-  const rL=[],rA=[]; let mL=0,mA=0;
-  for(let k=0;k<=12;k++){
-    const pL=poisson(k,lL)*100, pA=poisson(k,lA)*100;
-    rL.push({label:`${k}`,p:pL,i:k,max:12});
-    rA.push({label:`${k}`,p:pA,i:k,max:12});
-    if(pL>mL)mL=pL; if(pA>mA)mA=pA;
-  }
-  const ov=calcOver(lT,[6.5,7.5,8.5,9.5,10.5]);
-  const un=calcUnder(lT,[10.5,9.5,8.5,7.5,6.5]);
-  const o85=ov[8.5]*100, o75=ov[7.5]*100;
-  const vc=o85>=55?'v-green':o75>=55?'v-yellow':'v-red';
-  const vt=o85>=55?`Alta probabilidad +8.5 corners`:o75>=55?`Moderado: +7.5 corners`:`Tendencia a pocos corners`;
-  const overRows=[{label:'Over 6.5',p:ov[6.5]*100,i:1,max:5},{label:'Over 7.5',p:ov[7.5]*100,i:2,max:5},{label:'Over 8.5',p:ov[8.5]*100,i:3,max:5},{label:'Over 9.5',p:ov[9.5]*100,i:4,max:5},{label:'Over 10.5',p:ov[10.5]*100,i:5,max:5}];
-  const underRows=[{label:'Under 10.5',p:un[10.5]*100,i:5,max:5},{label:'Under 9.5',p:un[9.5]*100,i:4,max:5},{label:'Under 8.5',p:un[8.5]*100,i:3,max:5},{label:'Under 7.5',p:un[7.5]*100,i:2,max:5},{label:'Under 6.5',p:un[6.5]*100,i:1,max:5}];
-  const extra=`<div class="market-panels">
-    <div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${overRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>
-    <div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${underRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>
-  </div>`;
-  const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esp.',v:lT.toFixed(1)},{l:'Over 8.5',v:o85.toFixed(1)+'%'},{l:'Under 9.5',v:(un[9.5]*100).toFixed(1)+'%'}];
-  const cornIcon=o85>=55?'🟡':o75>=55?'⚪':'🔵';
-  const cornNote=`Se esperan ${lT.toFixed(1)} corners en total — λ: ${lL.toFixed(1)} local · ${lA.toFixed(1)} visitante.`;
-  const cornVerdict=makeVerdictCard(vc,cornIcon,'Veredicto Corners',vt,cornNote,'Over 8.5',o85.toFixed(1)+'%');
-  showRes('res-corners',makeMatchLayout(metrics,makeTeamPanel(nomL,rL,mL,'local','Corners '+nomL),makeTeamPanel(nomA,rA,mA,'away','Corners '+nomA),extra,cornVerdict));
-}
 
 // Init
 updateAvgTarjetas();
