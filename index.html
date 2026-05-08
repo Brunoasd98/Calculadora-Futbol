@@ -201,6 +201,37 @@
   .drop-item .team-badge{width:28px;height:32px;font-size:.56rem;}
   .sel-card .team-badge{width:34px;height:34px;font-size:.58rem;}
   .team-badge img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+
+  /* ── Chips numéricos (reemplazo de barras en goles/tarjetas) ── */
+  .num-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+  .num-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:52px;height:58px;border-radius:12px;cursor:default;transition:all .25s;position:relative;
+    border:2px solid transparent;flex-shrink:0;}
+  .num-chip .nc-num{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;line-height:1;letter-spacing:0;}
+  .num-chip .nc-pct{font-size:.58rem;font-weight:600;letter-spacing:.3px;margin-top:1px;opacity:.85;}
+  /* estado apagado */
+  .num-chip.dim{background:rgba(14,26,40,.7);border-color:rgba(30,50,70,.6);}
+  .num-chip.dim .nc-num{color:#3a5570;}
+  .num-chip.dim .nc-pct{color:#2e4460;}
+  /* estado activo/resaltado — verde */
+  .num-chip.hi-green{background:linear-gradient(160deg,rgba(0,229,160,.22),rgba(0,229,160,.08));
+    border-color:rgba(0,229,160,.65);box-shadow:0 0 18px rgba(0,229,160,.2),inset 0 0 0 1px rgba(0,229,160,.12);}
+  .num-chip.hi-green .nc-num{color:#00e5a0;text-shadow:0 0 14px rgba(0,229,160,.6);}
+  .num-chip.hi-green .nc-pct{color:rgba(0,229,160,.8);}
+  /* estado activo — azul */
+  .num-chip.hi-blue{background:linear-gradient(160deg,rgba(0,153,255,.22),rgba(0,153,255,.08));
+    border-color:rgba(0,153,255,.65);box-shadow:0 0 18px rgba(0,153,255,.2),inset 0 0 0 1px rgba(0,153,255,.12);}
+  .num-chip.hi-blue .nc-num{color:#0099ff;text-shadow:0 0 14px rgba(0,153,255,.6);}
+  .num-chip.hi-blue .nc-pct{color:rgba(0,153,255,.8);}
+  /* estado activo — rojo (tarjetas) */
+  .num-chip.hi-red{background:linear-gradient(160deg,rgba(255,58,92,.22),rgba(255,58,92,.08));
+    border-color:rgba(255,58,92,.65);box-shadow:0 0 18px rgba(255,58,92,.2),inset 0 0 0 1px rgba(255,58,92,.12);}
+  .num-chip.hi-red .nc-num{color:#ff3a5c;text-shadow:0 0 14px rgba(255,58,92,.6);}
+  .num-chip.hi-red .nc-pct{color:rgba(255,58,92,.8);}
+  /* segundo más alto */
+  .num-chip.semi{background:rgba(14,26,40,.9);border-color:rgba(30,50,70,.9);}
+  .num-chip.semi .nc-num{color:#4a7090;}
+  .num-chip.semi .nc-pct{color:#3a5c78;}
 </style>
 </head>
 <body>
@@ -1175,8 +1206,20 @@ function miniCrestHTML(name,side='local'){
 }
 function makeMetricStrip(items){return `<div class="metric-strip">${items.map(i=>`<div class="metric-card"><div class="ml">${i.l}</div><div class="mv">${i.v}</div></div>`).join('')}</div>`;}
 function makeTeamPanel(name,rows,maxP,side,title){
-  const bars=rows.map((r,idx)=>{const w=maxP>0?Math.min(100,(r.p/maxP)*100):0;const color=r.color||barColor(r.i??idx,r.max??Math.max(rows.length-1,1));return `<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${color}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`;}).join('');
-  return `<section class="team-result-card ${side}"><div class="team-hero">${crestHTML(name,side)}<div class="team-title">${esc(name)}</div><div class="team-sub">${title}</div></div><div class="team-bars">${bars}</div></section>`;
+  // Determine top index (highest probability)
+  let topIdx=0, topVal=0, secondIdx=-1;
+  rows.forEach((r,i)=>{if(r.p>topVal){topVal=r.p;topIdx=i;}});
+  let secVal=0;
+  rows.forEach((r,i)=>{if(i!==topIdx && r.p>secVal){secVal=r.p;secondIdx=i;}});
+  const hiClass = side==='away' ? 'hi-blue' : 'hi-green';
+  const chips=rows.map((r,idx)=>{
+    const num = r.label.match(/\d+/)?.[0] ?? idx;
+    let cls='dim';
+    if(idx===topIdx) cls=hiClass;
+    else if(idx===secondIdx) cls='semi';
+    return `<div class="num-chip ${cls}"><span class="nc-num">${num}</span><span class="nc-pct">${r.p.toFixed(1)}%</span></div>`;
+  }).join('');
+  return `<section class="team-result-card ${side}"><div class="team-hero">${crestHTML(name,side)}<div class="team-title">${esc(name)}</div><div class="team-sub">${title}</div></div><div class="num-chips">${chips}</div></section>`;
 }
 function makeMatchLayout(metrics,left,right,extra,verdict){return `<div class="match-result">${makeMetricStrip(metrics)}<div class="team-result-grid">${left}${right}</div>${extra||''}${verdict||''}</div>`;}
 function makeVerdictCard(cls, icon, kicker, title, note, pctLabel, pctVal){
@@ -1205,6 +1248,18 @@ function makeBars(title,rows,maxP){
 function makeOvers(items,title="Probabilidades"){
   const chips=items.map(i=>{const cls=i.v>=65?'hi':i.v>=45?'mi':'lo';return`<div class="over-chip ${cls}"><div class="ol">${i.l}</div><div class="ov">${i.v.toFixed(1)}%</div></div>`;}).join('');
   return`<div class="dist-section"><h5>${title}</h5><div class="over-grid">${chips}</div></div>`;
+}
+function makeOverUnderChips(rows, hiClass){
+  // Find top and second highest
+  let topIdx=0,topVal=0,secIdx=-1,secVal=0;
+  rows.forEach((r,i)=>{if(r.p>topVal){topVal=r.p;topIdx=i;}});
+  rows.forEach((r,i)=>{if(i!==topIdx&&r.p>secVal){secVal=r.p;secIdx=i;}});
+  return rows.map((r,idx)=>{
+    let cls='dim';
+    if(idx===topIdx)cls=hiClass;
+    else if(idx===secIdx)cls='semi';
+    return `<div class="num-chip ${cls}" style="width:62px;height:64px;"><span class="nc-num" style="font-size:1.1rem;letter-spacing:-.5px;">${r.label}</span><span class="nc-pct">${r.p.toFixed(1)}%</span></div>`;
+  }).join('');
 }
 function showRes(id,html){const el=document.getElementById(id);el.innerHTML=html;el.classList.add('on');hydrateCrests(el);el.scrollIntoView({behavior:'smooth',block:'nearest'});}
 
@@ -1253,7 +1308,7 @@ function calcGoles(){
   const vt=o25>=62?'Alta probabilidad +2.5 goles':o15>=66?'Moderada: +1.5 goles':'Tendencia a pocos goles';
   const overRows=[{label:'Over 1.5',p:o15,i:1,max:4},{label:'Over 2.5',p:o25,i:2,max:4},{label:'Over 3.5',p:o35,i:3,max:4},{label:'Over 4.5',p:ov[4.5]*100,i:4,max:4}];
   const underRows=[{label:'Under 4.5',p:un[4.5]*100,i:4,max:4},{label:'Under 3.5',p:un[3.5]*100,i:3,max:4},{label:'Under 2.5',p:un[2.5]*100,i:2,max:4},{label:'Under 1.5',p:un[1.5]*100,i:1,max:4}];
-  const extra=`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${overRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${underRows.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
+  const extra=`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="num-chips" style="justify-content:flex-start;">${makeOverUnderChips(overRows,'hi-green')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="num-chips" style="justify-content:flex-start;">${makeOverUnderChips(underRows,'hi-red')}</div></div></div>`;
   const metrics=[{l:'λ '+nomL,v:lL.toFixed(2)},{l:'λ '+nomA,v:lA.toFixed(2)},{l:'Total esperado',v:lT.toFixed(2)},{l:'Over 2.5',v:o25.toFixed(1)+'%'},{l:'Under 3.5',v:(un[3.5]*100).toFixed(1)+'%'}];
   const golesIcon=o25>=62?'⚽':o15>=66?'🎯':'🔒';
   const golesKicker='Veredicto Goles';
@@ -1280,8 +1335,22 @@ function calcTarjetas(){
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
   const vc=ov[4.5]*100>=55?'v-red':ov[3.5]*100>=55?'v-yellow':'v-green';
   const vt=ov[4.5]*100>=55?'Partido caliente: +4.5 tarjetas':ov[3.5]*100>=55?'Moderado: +3.5 tarjetas':'Partido tranquilo';
-  const total=`<div class="total-bars"><h5>Tarjetas Total</h5><div class="team-bars">${rT.map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(100,(r.p/mT)*100)}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div>`;
-  const extra=total+`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="team-bars">${[{label:'Over 1.5',p:ov[1.5]*100,i:1,max:5},{label:'Over 2.5',p:ov[2.5]*100,i:2,max:5},{label:'Over 3.5',p:ov[3.5]*100,i:3,max:5},{label:'Over 4.5',p:ov[4.5]*100,i:4,max:5},{label:'Over 5.5',p:ov[5.5]*100,i:5,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="team-bars">${[{label:'Under 5.5',p:un[5.5]*100,i:5,max:5},{label:'Under 4.5',p:un[4.5]*100,i:4,max:5},{label:'Under 3.5',p:un[3.5]*100,i:3,max:5},{label:'Under 2.5',p:un[2.5]*100,i:2,max:5}].map(r=>`<div class="team-bar-row"><span class="dk">${r.label}</span><div class="bar-wrap"><div class="bar-fill" style="width:${r.p}%;background:${barColor(r.i,r.max)}"></div></div><span class="dp">${r.p.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
+  const total=(()=>{
+    let topT=0,topTIdx=0,secT=0,secTIdx=-1;
+    rT.forEach((r,i)=>{if(r.p>topT){topT=r.p;topTIdx=i;}});
+    rT.forEach((r,i)=>{if(i!==topTIdx&&r.p>secT){secT=r.p;secTIdx=i;}});
+    const chips=rT.map((r,idx)=>{
+      const num=r.label.match(/\d+/)?.[0]??idx;
+      let cls='dim';
+      if(idx===topTIdx)cls='hi-red';
+      else if(idx===secTIdx)cls='semi';
+      return `<div class="num-chip ${cls}"><span class="nc-num">${num}</span><span class="nc-pct">${r.p.toFixed(1)}%</span></div>`;
+    }).join('');
+    return `<div class="total-bars"><h5>Tarjetas Total</h5><div class="num-chips" style="justify-content:flex-start;">${chips}</div></div>`;
+  })();
+  const tarOverRows=[{label:'Over 1.5',p:ov[1.5]*100},{label:'Over 2.5',p:ov[2.5]*100},{label:'Over 3.5',p:ov[3.5]*100},{label:'Over 4.5',p:ov[4.5]*100},{label:'Over 5.5',p:ov[5.5]*100}];
+  const tarUnderRows=[{label:'Under 5.5',p:un[5.5]*100},{label:'Under 4.5',p:un[4.5]*100},{label:'Under 3.5',p:un[3.5]*100},{label:'Under 2.5',p:un[2.5]*100}];
+  const extra=total+`<div class="market-panels"><div class="market-panel"><h5>Probabilidades Over</h5><div class="num-chips" style="justify-content:flex-start;">${makeOverUnderChips(tarOverRows,'hi-green')}</div></div><div class="market-panel"><h5>Probabilidades Under</h5><div class="num-chips" style="justify-content:flex-start;">${makeOverUnderChips(tarUnderRows,'hi-red')}</div></div></div>`;
   const metrics=[{l:'Prom. '+nomL,v:lL.toFixed(1)},{l:'Prom. '+nomA,v:lA.toFixed(1)},{l:'Total esperado',v:lT.toFixed(1)},{l:'Over 4.5',v:(ov[4.5]*100).toFixed(1)+'%'},{l:'Under 5.5',v:(un[5.5]*100).toFixed(1)+'%'}];
   const tarIcon=ov[4.5]*100>=55?'🟥':ov[3.5]*100>=55?'🟨':'🟩';
   const tarKicker='Veredicto Tarjetas';
