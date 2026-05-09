@@ -363,12 +363,10 @@
         <div class="team-block">
           <h4><span class="dot dot-l"></span><span id="corn_nomL_label">Local</span></h4>
           <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_avgL" step="0.1" value="5.0" min="0"></div>
-          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_gcL" step="0.1" value="4.5" min="0"></div>
         </div>
         <div class="team-block">
           <h4><span class="dot dot-a"></span><span id="corn_nomA_label">Visitante</span></h4>
           <div class="fg"><label>Corners a favor (prom. últimos 5)</label><input type="number" id="corn_avgA" step="0.1" value="4.5" min="0"></div>
-          <div class="fg"><label>Corners en contra (prom. últimos 5)</label><input type="number" id="corn_gcA" step="0.1" value="5.0" min="0"></div>
         </div>
       </div>
       <button class="calc-btn" onclick="calcCorners()">Calcular Corners</button>
@@ -1480,13 +1478,8 @@ function calcGanador(){
 }
 
 function calcCorners(){
-  const avgL=parseFloat(document.getElementById('corn_avgL').value)||5.0;
-  const gcL =parseFloat(document.getElementById('corn_gcL').value)||4.5;
-  const avgA=parseFloat(document.getElementById('corn_avgA').value)||4.5;
-  const gcA =parseFloat(document.getElementById('corn_gcA').value)||5.0;
-  // λ local = media de sus corners a favor y los en contra del rival
-  const lL=clamp((avgL+gcA)/2,.5,12);
-  const lA=clamp((avgA+gcL)/2,.5,12);
+  const lL=clamp(parseFloat(document.getElementById('corn_avgL').value)||5.0,.5,15);
+  const lA=clamp(parseFloat(document.getElementById('corn_avgA').value)||4.5,.5,15);
   const lT=lL+lA;
   const nomL=STATE.nomL||'Local',nomA=STATE.nomA||'Visitante';
   // Chips por equipo 0-10
